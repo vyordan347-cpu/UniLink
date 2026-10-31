@@ -1,0 +1,113 @@
+@model SolicitudAlquilerViewModel
+
+@{
+    ViewData["Title"] = "Solicitar alquiler";
+}
+
+<section class="container py-4 py-lg-5">
+    <a asp-controller="Materiales" asp-action="Detalle" asp-route-id="@Model.MaterialId" class="link-secondary d-inline-block mb-4">← Volver al material</a>
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-5">
+            <article class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                <img class="detalle-imagen w-100" src="@(Model.Material.ImagenUrl ?? "/img/material-default.svg")" alt="@Model.Material.Nombre" />
+                <div class="card-body p-4">
+                    <p class="eyebrow mb-2">@Model.Material.Categoria.Nombre · @Model.Material.Carrera</p>
+                    <h1 class="h3 fw-bold">@Model.Material.Nombre</h1>
+                    <p class="text-secondary">@Model.Material.Descripcion</p>
+                    <p class="mb-1"><strong>Lugar de entrega:</strong> @Model.Material.Ubicacion</p>
+                    <p class="mb-0">
+                        @if (Model.Material.EsSolidario)
+                        {
+                            <span class="badge badge-solidario">Préstamo solidario gratuito</span>
+                        }
+                        else
+                        {
+                            <span>S/ @Model.Material.PrecioDia.ToString("0.00") por día</span>
+                        }
+                    </p>
+                </div>
+            </article>
+        </div>
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <h2 class="h4 fw-bold mb-4">Elige las fechas de tu préstamo</h2>
+                    <form asp-action="Solicitar" method="post">
+                        <input asp-for="MaterialId" type="hidden" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label asp-for="FechaInicio" class="form-label fw-semibold">Fecha de inicio</label>
+                                <input asp-for="FechaInicio" class="form-control" type="date" id="fechaInicio" />
+                                <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                            </div>
+                            <div class="col-sm-6">
+                                <label asp-for="FechaFin" class="form-label fw-semibold">Fecha de devolución</label>
+                                <input asp-for="FechaFin" class="form-control" type="date" id="fechaFin" />
+                                <span asp-validation-for="FechaFin" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="rounded-3 bg-light p-3 mt-4" aria-live="polite">
+                            <div class="d-flex justify-content-between">
+                                <span>Días de préstamo</span>
+                                <strong id="diasAlquiler">—</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <span>Costo total</span>
+                                <strong id="costoAlquiler" data-precio="@Model.Material.PrecioDia">—</strong>
+                            </div>
+                            <p class="small text-secondary mb-0 mt-2">El cálculo cuenta tanto el día de inicio como el de devolución.</p>
+                        </div>
+                        <p class="alert alert-info mt-4 mb-3">El pago se realiza en persona al recoger (efectivo, Yape o Plin).</p>
+                        <div class="form-check mb-4">
+                            <input asp-for="AceptaCondiciones" class="form-check-input" />
+                            <label asp-for="AceptaCondiciones" class="form-check-label">He leído y acepto las condiciones del préstamo</label>
+                            <span asp-validation-for="AceptaCondiciones" class="text-danger d-block"></span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn @(Model.Material.EsSolidario ? "btn-solidario" : "btn-action")">Confirmar solicitud</button>
+                            <a asp-controller="Materiales" asp-action="Detalle" asp-route-id="@Model.MaterialId" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const inicio = document.getElementById("fechaInicio");
+            const fin = document.getElementById("fechaFin");
+            const dias = document.getElementById("diasAlquiler");
+            const costo = document.getElementById("costoAlquiler");
+            const precioDia = Number(costo.dataset.precio);
+
+            function actualizarCalculo() {
+                if (!inicio.value || !fin.value) {
+                    dias.textContent = "—";
+                    costo.textContent = "—";
+                    return;
+                }
+
+                const fechaInicio = new Date(`${inicio.value}T00:00:00`);
+                const fechaFin = new Date(`${fin.value}T00:00:00`);
+                const cantidadDias = Math.floor((fechaFin - fechaInicio) / 86400000) + 1;
+                if (cantidadDias < 1) {
+                    dias.textContent = "—";
+                    costo.textContent = "—";
+                    return;
+                }
+
+                dias.textContent = cantidadDias;
+                costo.textContent = `S/ ${(cantidadDias * precioDia).toFixed(2)}`;
+            }
+
+            inicio.addEventListener("change", actualizarCalculo);
+            fin.addEventListener("change", actualizarCalculo);
+            actualizarCalculo();
+        })();
+    </script>
+}

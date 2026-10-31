@@ -1,0 +1,68 @@
+@model IReadOnlyList<Alquiler>
+
+@{
+    ViewData["Title"] = "Solicitudes recibidas";
+}
+
+<section class="container py-4 py-lg-5">
+    <div class="mb-4">
+        <p class="eyebrow mb-2">Como propietario</p>
+        <h1 class="h2 fw-bold">Solicitudes recibidas</h1>
+    </div>
+    @if (Model.Count == 0)
+    {
+        <div class="estado-vacio text-center rounded-4 p-5">
+            <h2 class="h4">No tienes solicitudes todavía</h2>
+            <p class="text-secondary mb-0">Cuando alguien solicite uno de tus materiales, aparecerá aquí.</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var alquiler in Model)
+        {
+            var cantidadDias = alquiler.FechaFin.DayNumber - alquiler.FechaInicio.DayNumber + 1;
+            <article class="card border-0 shadow-sm rounded-4 mb-3">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+                        <div>
+                            <h2 class="h5 fw-bold">@alquiler.Material.Nombre</h2>
+                            <p class="mb-1"><strong>@alquiler.Solicitante.Nombre</strong> · @alquiler.Solicitante.Carrera</p>
+                            <p class="text-secondary mb-1">@alquiler.FechaInicio.ToString("dd/MM/yyyy") – @alquiler.FechaFin.ToString("dd/MM/yyyy") · @cantidadDias días</p>
+                            <p class="mb-0">Costo total: <strong>S/ @alquiler.CostoTotal.ToString("0.00")</strong></p>
+                        </div>
+                        <div class="d-flex flex-column align-items-start align-items-lg-end gap-2">
+                            <span class="badge estado-badge estado-@alquiler.Estado.ToString().ToLowerInvariant()">@alquiler.Estado</span>
+                            @if (alquiler.Estado == EstadoSolicitud.Pendiente)
+                            {
+                                <div class="d-flex flex-wrap gap-2">
+                                    <form asp-action="Aprobar" method="post">
+                                        <input type="hidden" name="id" value="@alquiler.Id" />
+                                        <button type="submit" class="btn btn-sm btn-success">Aprobar</button>
+                                    </form>
+                                    <form asp-action="Rechazar" method="post">
+                                        <input type="hidden" name="id" value="@alquiler.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Rechazar</button>
+                                    </form>
+                                </div>
+                            }
+                            else if (alquiler.Estado == EstadoSolicitud.Aprobado)
+                            {
+                                <form asp-action="MarcarEntregado" method="post">
+                                    <input type="hidden" name="id" value="@alquiler.Id" />
+                                    <button type="submit" class="btn btn-sm btn-action">Marcar como entregado</button>
+                                </form>
+                            }
+                            else if (alquiler.Estado == EstadoSolicitud.Activo)
+                            {
+                                <form asp-action="MarcarDevuelto" method="post">
+                                    <input type="hidden" name="id" value="@alquiler.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Marcar como devuelto</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </article>
+        }
+    }
+</section>

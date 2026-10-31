@@ -64,8 +64,17 @@
                     }
                     else
                     {
-                        <button type="button" class="btn btn-action mt-3" disabled>Disponible pronto</button>
-                        <p class="form-text">La opción para solicitar un alquiler estará disponible próximamente.</p>
+                        @if (Model.Disponible)
+                        {
+                            <a class="btn @(Model.EsSolidario ? "btn-solidario" : "btn-action") mt-3"
+                               asp-controller="Alquileres" asp-action="Solicitar" asp-route-id="@Model.Id">
+                                @(Model.EsSolidario ? "Solicitar préstamo solidario" : "Solicitar alquiler")
+                            </a>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-outline-secondary mt-3" disabled>Material no disponible</button>
+                        }
                     }
                 </div>
             </div>
