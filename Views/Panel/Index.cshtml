@@ -1,0 +1,36 @@
+@{
+    ViewData["Title"] = "Mi panel";
+}
+
+<section class="container py-5">
+    <div class="mb-4">
+        <p class="text-uppercase small fw-semibold text-primary mb-2">Tu espacio en UniLink</p>
+        <h1 class="h2">Hola, @ViewData["NombreUsuario"] 👋</h1>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <article class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">Alquileres activos</p>
+                    <p class="display-5 fw-semibold mb-0">@ViewData["AlquileresActivos"]</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">Clases próximas</p>
+                    <p class="display-5 fw-semibold mb-0">@ViewData["ClasesProximas"]</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">Solicitudes pendientes</p>
+                    <p class="display-5 fw-semibold mb-0">@ViewData["SolicitudesPendientes"]</p>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
