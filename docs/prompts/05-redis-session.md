@@ -26,3 +26,7 @@ Lee AGENTS.md. Estamos en la rama feature/redis-session. Integra Redis:
 - Las claves de Data Protection se persisten en Redis para mantener válidas las cookies de autenticación después de reinicios.
 - Se creó un servicio que obtiene las categorías de la caché o de PostgreSQL, las almacena durante 10 minutos y registra su origen.
 - El Panel presenta las categorías como badges y `/health` informa el estado de Redis.
+
+## Corrección /health
+
+Lee AGENTS.md. Estamos en la rama fix/health-redis. El endpoint GET /health solo devuelve estado y baseDeDatos. Amplíalo para que también incluya "redis": "conectado" o "sin conexión", verificando la conexión real a Redis (por ejemplo, escribiendo y leyendo una clave de prueba con IDistributedCache dentro de un try/catch con timeout corto). Si no hay cadena de Redis configurada, devuelve "redis": "no configurado". El endpoint no debe lanzar excepciones aunque Redis falle. Ejecuta dotnet build. Agrega al final de docs/prompts/05-redis-session.md una sección "Corrección /health" con este prompt. No ejecutes git ni muestres secretos.

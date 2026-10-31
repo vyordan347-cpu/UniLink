@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Caching.Distributed;
 using UniLink.Data;
 using UniLink.Models;
 using UniLink.Services;
@@ -97,7 +98,7 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapGet("/health", async (UniLinkDbContext db, IServiceProvider servicios) =>
+app.MapGet("/health", async (UniLinkDbContext db, IDistributedCache cache) =>
 {
     var baseDeDatosConectada = false;
     try
@@ -109,13 +110,43 @@ app.MapGet("/health", async (UniLinkDbContext db, IServiceProvider servicios) =>
         // El endpoint informa la falta de conexión sin exponer detalles de configuración.
     }
 
-    var redisConectado = servicios.GetService<IConnectionMultiplexer>()?.IsConnected == true;
+    var redisEstado = "no configurado";
+    if (!string.IsNullOrWhiteSpace(redisConnectionString))
+    {
+        redisEstado = "sin conexión";
+        try
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            var clavePrueba = $"health:{Guid.NewGuid():N}";
+            var valorPrueba = Guid.NewGuid().ToString("N");
+
+            await cache.SetStringAsync(
+                clavePrueba,
+                valorPrueba,
+                new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10)
+                },
+                timeout.Token).WaitAsync(timeout.Token);
+
+            var valorLeido = await cache.GetStringAsync(clavePrueba, timeout.Token)
+                .WaitAsync(timeout.Token);
+            if (valorLeido == valorPrueba)
+            {
+                redisEstado = "conectado";
+            }
+        }
+        catch
+        {
+            // Una falla de Redis no debe impedir que el endpoint de salud responda.
+        }
+    }
 
     return Results.Ok(new
     {
         estado = "ok",
         baseDeDatos = baseDeDatosConectada ? "conectada" : "sin conexión",
-        redis = redisConectado ? "conectado" : "sin conexión"
+        redis = redisEstado
     });
 });
 
