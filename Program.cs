@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.DataProtection;
 using UniLink.Data;
 using UniLink.Models;
+using UniLink.Services;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,11 +47,38 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Cuenta/Login";
 });
 
-builder.Services.AddDistributedMemoryCache();
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+var dataProtection = builder.Services.AddDataProtection();
+if (!string.IsNullOrWhiteSpace(redisConnectionString))
+{
+    var redisConfiguration = ConfigurationOptions.Parse(redisConnectionString);
+    redisConfiguration.AbortOnConnectFail = false;
+    IConnectionMultiplexer redisConnection = ConnectionMultiplexer.Connect(redisConfiguration);
+
+    builder.Services.AddSingleton<IConnectionMultiplexer>(redisConnection);
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.InstanceName = "UniLink:";
+        options.ConnectionMultiplexerFactory = () => Task.FromResult(redisConnection);
+    });
+    dataProtection.PersistKeysToStackExchangeRedis(redisConnection, "UniLink:DataProtection-Keys");
+}
+else
+{
+    builder.Services.AddDistributedMemoryCache();
+}
+
 builder.Services.AddSession();
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 
 var app = builder.Build();
+
+if (string.IsNullOrWhiteSpace(redisConnectionString))
+{
+    app.Logger.LogWarning(
+        "No se configuró Redis. Se usarán sesiones y caché en memoria; las claves de Data Protection no se compartirán mediante Redis.");
+}
 
 app.UseForwardedHeaders();
 
@@ -67,7 +97,7 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapGet("/health", async (UniLinkDbContext db) =>
+app.MapGet("/health", async (UniLinkDbContext db, IServiceProvider servicios) =>
 {
     var baseDeDatosConectada = false;
     try
@@ -79,10 +109,13 @@ app.MapGet("/health", async (UniLinkDbContext db) =>
         // El endpoint informa la falta de conexión sin exponer detalles de configuración.
     }
 
+    var redisConectado = servicios.GetService<IConnectionMultiplexer>()?.IsConnected == true;
+
     return Results.Ok(new
     {
         estado = "ok",
-        baseDeDatos = baseDeDatosConectada ? "conectada" : "sin conexión"
+        baseDeDatos = baseDeDatosConectada ? "conectada" : "sin conexión",
+        redis = redisConectado ? "conectado" : "sin conexión"
     });
 });
 
