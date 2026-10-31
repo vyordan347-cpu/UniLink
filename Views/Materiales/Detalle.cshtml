@@ -1,0 +1,81 @@
+@model Material
+
+@{
+    var esPropietario = ViewData["EsPropietario"] is true;
+    ViewData["Title"] = Model.Nombre;
+}
+
+<section class="container py-4 py-lg-5">
+    <a asp-action="Index" class="link-secondary d-inline-block mb-4">← Volver a explorar</a>
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="row g-0">
+            <div class="col-lg-6">
+                <img class="detalle-imagen w-100 h-100" src="@(Model.ImagenUrl ?? "/img/material-default.svg")" alt="@Model.Nombre" />
+            </div>
+            <div class="col-lg-6">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        @if (Model.EsSolidario)
+                        {
+                            <span class="badge badge-solidario">GRATUITO</span>
+                        }
+                        <span class="badge @(Model.Disponible ? "text-bg-success" : "text-bg-secondary")">
+                            @(Model.Disponible ? "Disponible" : "Prestado")
+                        </span>
+                        @if (Model.Esterilizado)
+                        {
+                            <span class="badge text-bg-light border text-primary">Esterilizado</span>
+                        }
+                    </div>
+                    <p class="eyebrow mb-2">@Model.Categoria.Nombre · @Model.Carrera</p>
+                    <h1 class="h2 fw-bold mb-3">@Model.Nombre</h1>
+                    @if (Model.EsSolidario)
+                    {
+                        <p class="precio-material precio-solidario mb-4">Préstamo solidario</p>
+                    }
+                    else
+                    {
+                        <p class="precio-material mb-4">S/ @Model.PrecioDia.ToString("0.00") <span>por día</span></p>
+                    }
+                    <p class="text-secondary material-descripcion">@Model.Descripcion</p>
+
+                    <dl class="row mt-4">
+                        <dt class="col-sm-4">Condición</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(_ => Model.Condicion)</dd>
+                        <dt class="col-sm-4">Ubicación</dt>
+                        <dd class="col-sm-8">@Model.Ubicacion</dd>
+                        <dt class="col-sm-4">Publicado por</dt>
+                        <dd class="col-sm-8">@Model.Propietario.Nombre · @Model.Propietario.Carrera</dd>
+                        <dt class="col-sm-4">Publicado el</dt>
+                        <dd class="col-sm-8">@Model.FechaPublicacion.ToLocalTime().ToString("dd/MM/yyyy")</dd>
+                    </dl>
+
+                    @if (esPropietario)
+                    {
+                        <div class="d-flex flex-wrap gap-2 mt-4">
+                            <a class="btn btn-primary" asp-action="Editar" asp-route-id="@Model.Id">Editar</a>
+                            <button type="button" class="btn btn-outline-danger"
+                                    data-bs-toggle="modal" data-bs-target="#modalEliminarMaterial"
+                                    data-material-id="@Model.Id" data-material-nombre="@Model.Nombre">
+                                Eliminar
+                            </button>
+                        </div>
+                        <partial name="_ModalEliminar" />
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-action mt-3" disabled>Disponible pronto</button>
+                        <p class="form-text">La opción para solicitar un alquiler estará disponible próximamente.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/materiales.css" asp-append-version="true" />
+}
+@section Scripts {
+    <script src="~/js/materiales.js" asp-append-version="true"></script>
+}

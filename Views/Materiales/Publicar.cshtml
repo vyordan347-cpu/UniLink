@@ -1,0 +1,30 @@
+@model MaterialViewModel
+
+@{
+    ViewData["Title"] = "Publicar material";
+}
+
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            <div class="mb-4">
+                <p class="eyebrow mb-2">Comparte con tu comunidad</p>
+                <h1 class="h2 fw-bold">Publicar un material</h1>
+                <p class="text-secondary">Completa los datos para que otros estudiantes puedan encontrarlo.</p>
+            </div>
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <partial name="_Formulario" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/materiales.css" asp-append-version="true" />
+}
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/materiales.js" asp-append-version="true"></script>
+}

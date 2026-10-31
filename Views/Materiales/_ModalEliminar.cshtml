@@ -1,0 +1,21 @@
+<div class="modal fade" id="modalEliminarMaterial" tabindex="-1" aria-labelledby="modalEliminarTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header border-0">
+                <h2 class="modal-title fs-5 fw-bold" id="modalEliminarTitulo">Eliminar material</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Seguro que quieres eliminar <strong data-material-nombre-modal>este material</strong>? Esta acción no se puede deshacer.
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form asp-action="Eliminar" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="" data-material-id-input />
+                    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

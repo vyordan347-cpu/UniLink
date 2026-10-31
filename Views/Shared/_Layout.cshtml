@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/UniLink.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
@@ -21,10 +22,12 @@
                 <div class="navbar-collapse collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto align-items-md-center gap-md-2">
                         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Explorar</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Solidario</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Materiales" asp-action="Index">Explorar</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Materiales" asp-action="Index" asp-route-soloGratuitos="true">Solidario</a></li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Materiales" asp-action="Publicar">Publicar</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Materiales" asp-action="Mios">Mis materiales</a></li>
                             <li class="nav-item ms-md-2"><a class="nav-link nav-login" asp-controller="Panel" asp-action="Index">Mi panel</a></li>
                             <li class="nav-item">
                                 <form asp-controller="Cuenta" asp-action="Logout" method="post">
@@ -48,6 +51,15 @@
             <div class="container pt-3">
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     @mensaje
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            </div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div class="container pt-3">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @error
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                 </div>
             </div>

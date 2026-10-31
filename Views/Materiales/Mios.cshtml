@@ -1,0 +1,36 @@
+@model IReadOnlyList<Material>
+
+@{
+    ViewData["Title"] = "Mis materiales";
+    ViewData["MostrarAccionesPropietario"] = true;
+}
+
+<section class="container py-5">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4">
+        <div>
+            <p class="eyebrow mb-2">Tus publicaciones</p>
+            <h1 class="h2 fw-bold mb-0">Mis materiales</h1>
+        </div>
+        <a class="btn btn-action" asp-action="Publicar">Publicar un material</a>
+    </div>
+    @if (Model.Count == 0)
+    {
+        <div class="estado-vacio text-center rounded-4 p-5">
+            <h2 class="h4">Todavía no has publicado materiales</h2>
+            <p class="text-secondary">Comparte algo que pueda ayudar a otro estudiante.</p>
+            <a class="btn btn-primary" asp-action="Publicar">Publicar mi primer material</a>
+        </div>
+    }
+    else
+    {
+        <partial name="_Tarjetas" model="Model" />
+        <partial name="_ModalEliminar" />
+    }
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/materiales.css" asp-append-version="true" />
+}
+@section Scripts {
+    <script src="~/js/materiales.js" asp-append-version="true"></script>
+}

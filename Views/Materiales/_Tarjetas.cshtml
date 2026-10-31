@@ -1,0 +1,48 @@
+@model IReadOnlyList<Material>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4">
+    @foreach (var material in Model)
+    {
+        <div class="col">
+            <article class="card tarjeta-material h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                <img class="tarjeta-material-imagen" src="@(material.ImagenUrl ?? "/img/material-default.svg")" alt="@material.Nombre" loading="lazy" />
+                <div class="card-body d-flex flex-column p-4">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        @if (material.EsSolidario)
+                        {
+                            <span class="badge badge-solidario">GRATUITO</span>
+                        }
+                        <span class="badge @(material.Disponible ? "text-bg-success" : "text-bg-secondary")">
+                            @(material.Disponible ? "Disponible" : "Prestado")
+                        </span>
+                    </div>
+                    <p class="small text-primary fw-semibold mb-1">@material.Categoria.Nombre · @material.Carrera</p>
+                    <h2 class="h5 fw-bold">@material.Nombre</h2>
+                    <p class="text-secondary small mb-2">@Html.DisplayFor(_ => material.Condicion) · @material.Ubicacion</p>
+                    <div class="mt-auto">
+                        @if (material.EsSolidario)
+                        {
+                            <p class="precio-material precio-solidario mb-3">GRATUITO</p>
+                        }
+                        else
+                        {
+                            <p class="precio-material mb-3">S/ @material.PrecioDia.ToString("0.00") <span>por día</span></p>
+                        }
+                        <div class="d-flex flex-wrap gap-2">
+                            <a class="btn btn-outline-primary flex-grow-1" asp-action="Detalle" asp-route-id="@material.Id">Ver detalle</a>
+                            @if (ViewData["MostrarAccionesPropietario"] is true)
+                            {
+                                <a class="btn btn-primary" asp-action="Editar" asp-route-id="@material.Id">Editar</a>
+                                <button type="button" class="btn btn-outline-danger"
+                                        data-bs-toggle="modal" data-bs-target="#modalEliminarMaterial"
+                                        data-material-id="@material.Id" data-material-nombre="@material.Nombre">
+                                    Eliminar
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    }
+</div>
