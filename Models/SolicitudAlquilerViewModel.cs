@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace UniLink.Models;
 
@@ -14,8 +15,8 @@ public class SolicitudAlquilerViewModel
     [DataType(DataType.Date)]
     public DateOnly FechaFin { get; set; }
 
-    [Range(typeof(bool), "true", "true", ErrorMessage = "Debes aceptar las condiciones del préstamo.")]
     public bool AceptaCondiciones { get; set; }
 
-    public Material Material { get; set; } = null!;
+    [ValidateNever]
+    public Material? Material { get; set; }
 }

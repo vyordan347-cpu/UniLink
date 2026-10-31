@@ -8,7 +8,9 @@ using UniLink.Models;
 namespace UniLink.Controllers;
 
 [Authorize]
-public class AlquileresController(UniLinkDbContext db) : Controller
+public class AlquileresController(
+    UniLinkDbContext db,
+    ILogger<AlquileresController> logger) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Solicitar(int id, CancellationToken cancellationToken)
@@ -71,6 +73,11 @@ public class AlquileresController(UniLinkDbContext db) : Controller
             return Forbid();
         }
 
+        if (!modelo.AceptaCondiciones)
+        {
+            ModelState.AddModelError(nameof(modelo.AceptaCondiciones), "Debes aceptar las condiciones del préstamo.");
+        }
+
         var hoy = DateOnly.FromDateTime(DateTime.Today);
         if (modelo.FechaInicio < hoy)
         {
@@ -111,6 +118,17 @@ public class AlquileresController(UniLinkDbContext db) : Controller
 
         if (!ModelState.IsValid)
         {
+            foreach (var (campo, estado) in ModelState)
+            {
+                foreach (var error in estado.Errors)
+                {
+                    var mensaje = string.IsNullOrEmpty(error.ErrorMessage)
+                        ? error.Exception?.Message ?? "Error de validación sin mensaje."
+                        : error.ErrorMessage;
+                    logger.LogWarning("Solicitud de alquiler no válida. Campo: {Campo}. Error: {Mensaje}", campo, mensaje);
+                }
+            }
+
             modelo.Material = material;
             ViewData["Title"] = "Solicitar alquiler";
             return View(modelo);
