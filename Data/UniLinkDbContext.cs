@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using UniLink.Models;
 
 namespace UniLink.Data;
 
-public class UniLinkDbContext(DbContextOptions<UniLinkDbContext> options) : DbContext(options)
+public class UniLinkDbContext(DbContextOptions<UniLinkDbContext> options)
+    : IdentityDbContext<Usuario, IdentityRole<int>, int>(options)
 {
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<Categoria> Categorias => Set<Categoria>();
@@ -16,10 +19,6 @@ public class UniLinkDbContext(DbContextOptions<UniLinkDbContext> options) : DbCo
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<Usuario>()
-            .HasIndex(usuario => usuario.Correo)
-            .IsUnique();
 
         modelBuilder.Entity<Usuario>()
             .HasIndex(usuario => usuario.CodigoAlumno)

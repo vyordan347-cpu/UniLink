@@ -1,0 +1,40 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <p class="text-uppercase small fw-semibold text-primary mb-2">Qué bueno tenerte de vuelta</p>
+                    <h1 class="h2 mb-4">Iniciar sesión</h1>
+                    <form asp-action="Login" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <div class="mb-3">
+                            <label asp-for="Correo" class="form-label">Correo institucional</label>
+                            <input asp-for="Correo" class="form-control" autocomplete="username" />
+                            <span asp-validation-for="Correo" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Contraseña" class="form-label"></label>
+                            <input asp-for="Contraseña" class="form-control" autocomplete="current-password" />
+                            <span asp-validation-for="Contraseña" class="text-danger"></span>
+                        </div>
+                        <div class="form-check mb-4">
+                            <input asp-for="Recordarme" class="form-check-input" />
+                            <label asp-for="Recordarme" class="form-check-label">Recordarme</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+                    </form>
+                    <p class="text-center mt-4 mb-0">¿No tienes cuenta? <a asp-action="Registro">Crear cuenta</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
