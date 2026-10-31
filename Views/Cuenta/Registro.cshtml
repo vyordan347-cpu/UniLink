@@ -1,0 +1,63 @@
+@model RegistroViewModel
+@{
+    ViewData["Title"] = "Crear cuenta";
+}
+
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-xl-6">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <p class="text-uppercase small fw-semibold text-primary mb-2">Comunidad estudiantil USMP</p>
+                    <h1 class="h2 mb-4">Crear cuenta</h1>
+                    <form asp-action="Registro" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <div class="mb-3">
+                            <label asp-for="Nombre" class="form-label">Nombre completo</label>
+                            <input asp-for="Nombre" class="form-control" autocomplete="name" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Correo" class="form-label">Correo institucional</label>
+                            <input asp-for="Correo" class="form-control" autocomplete="email" />
+                            <span asp-validation-for="Correo" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="CodigoAlumno" class="form-label">Código de alumno</label>
+                            <input asp-for="CodigoAlumno" class="form-control" />
+                            <span asp-validation-for="CodigoAlumno" class="text-danger"></span>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label asp-for="Carrera" class="form-label"></label>
+                                <input asp-for="Carrera" class="form-control" />
+                                <span asp-validation-for="Carrera" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Ciclo" class="form-label"></label>
+                                <input asp-for="Ciclo" class="form-control" type="number" min="1" max="14" />
+                                <span asp-validation-for="Ciclo" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Contraseña" class="form-label"></label>
+                            <input asp-for="Contraseña" class="form-control" autocomplete="new-password" />
+                            <span asp-validation-for="Contraseña" class="text-danger"></span>
+                        </div>
+                        <div class="mb-4">
+                            <label asp-for="Confirmar" class="form-label">Confirmar contraseña</label>
+                            <input asp-for="Confirmar" class="form-control" autocomplete="new-password" />
+                            <span asp-validation-for="Confirmar" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Crear cuenta</button>
+                    </form>
+                    <p class="text-center mt-4 mb-0">¿Ya tienes cuenta? <a asp-action="Login">Inicia sesión</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

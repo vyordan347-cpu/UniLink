@@ -23,13 +23,35 @@
                         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Explorar</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Solidario</a></li>
-                        <li class="nav-item ms-md-2"><a class="nav-link nav-login" href="#">Iniciar sesión</a></li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item ms-md-2"><a class="nav-link nav-login" asp-controller="Panel" asp-action="Index">Mi panel</a></li>
+                            <li class="nav-item">
+                                <form asp-controller="Cuenta" asp-action="Logout" method="post">
+                                    <button type="submit" class="nav-link border-0 bg-transparent">Cerrar sesión</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item ms-md-2"><a class="nav-link nav-login" asp-controller="Cuenta" asp-action="Login">Iniciar sesión</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Cuenta" asp-action="Registro">Crear cuenta</a></li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
     <main role="main">
+        @if (TempData["Mensaje"] is string mensaje)
+        {
+            <div class="container pt-3">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @mensaje
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            </div>
+        }
         @RenderBody()
     </main>
 
