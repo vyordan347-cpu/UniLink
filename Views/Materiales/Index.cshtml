@@ -1,0 +1,82 @@
+@model MaterialesExplorarViewModel
+
+@{
+    ViewData["Title"] = "Explorar materiales";
+}
+
+<section class="materiales-encabezado py-5">
+    <div class="container">
+        <p class="eyebrow mb-2">Comparte, encuentra y aprende</p>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
+            <div>
+                <h1 class="display-6 fw-bold mb-2">Explora materiales</h1>
+                <p class="text-secondary mb-0">Encuentra materiales académicos ofrecidos por estudiantes USMP.</p>
+            </div>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="btn btn-action" asp-action="Publicar">Publicar un material</a>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="container py-4 py-lg-5">
+    <form asp-action="Index" method="get" class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-3 p-md-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label asp-for="CategoriaId" class="form-label fw-semibold">Categoría</label>
+                    <select asp-for="CategoriaId" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        @foreach (var categoria in Model.Categorias)
+                        {
+                            <option value="@categoria.Id">@categoria.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <label asp-for="Carrera" class="form-label fw-semibold">Carrera</label>
+                    <select asp-for="Carrera" class="form-select">
+                        <option value="">Todas las carreras</option>
+                        @foreach (var carrera in Model.Carreras)
+                        {
+                            <option value="@carrera">@carrera</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-6 col-lg-2">
+                    <label asp-for="PrecioMaximo" class="form-label fw-semibold">Precio máximo (S/ por día)</label>
+                    <input asp-for="PrecioMaximo" type="number" min="0" step="0.01" class="form-control" />
+                </div>
+                <div class="col-12 col-md-6 col-lg-2">
+                    <div class="form-check mb-2">
+                        <input asp-for="SoloGratuitos" class="form-check-input" />
+                        <label asp-for="SoloGratuitos" class="form-check-label fw-semibold">Solo gratuitos</label>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">Filtrar</button>
+                    <a asp-action="Index" asp-route-limpiarFiltros="true" class="btn btn-outline-secondary">Limpiar</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    @if (Model.Materiales.Count == 0)
+    {
+        <div class="estado-vacio text-center rounded-4 p-5">
+            <span class="estado-vacio-icono" aria-hidden="true">⌕</span>
+            <h2 class="h4 mt-3">Aún no encontramos materiales</h2>
+            <p class="text-secondary mb-0">Prueba cambiar los filtros o vuelve más tarde. Siempre hay algo nuevo en la comunidad.</p>
+        </div>
+    }
+    else
+    {
+        <p class="text-secondary mb-3">@Model.Materiales.Count @(Model.Materiales.Count == 1 ? "material encontrado" : "materiales encontrados")</p>
+        <partial name="_Tarjetas" model="Model.Materiales" />
+    }
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/materiales.css" asp-append-version="true" />
+}
