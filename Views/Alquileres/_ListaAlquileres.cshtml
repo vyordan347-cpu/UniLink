@@ -1,0 +1,31 @@
+@model ListaAlquileresViewModel
+
+@if (Model.Alquileres.Count == 0)
+{
+    <div class="estado-vacio text-center rounded-4 p-5">
+        <p class="text-secondary mb-0">No hay alquileres en esta sección.</p>
+    </div>
+}
+else
+{
+    @foreach (var alquiler in Model.Alquileres)
+    {
+        <article class="card border-0 shadow-sm rounded-4 mb-3">
+            <div class="card-body p-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                    <div>
+                        <h2 class="h5 fw-bold">@alquiler.Material.Nombre</h2>
+                        <p class="text-secondary mb-2">@alquiler.FechaInicio.ToString("dd/MM/yyyy") – @alquiler.FechaFin.ToString("dd/MM/yyyy")</p>
+                        <p class="mb-0">Costo total: <strong>S/ @alquiler.CostoTotal.ToString("0.00")</strong></p>
+                        @if (Model.MostrarDiasParaDevolver && alquiler.Estado == EstadoSolicitud.Activo)
+                        {
+                            var diasRestantes = Math.Max(0, alquiler.FechaFin.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber);
+                            <p class="text-secondary mt-2 mb-0">Faltan @diasRestantes días para devolverlo</p>
+                        }
+                    </div>
+                    <span class="badge estado-badge estado-@alquiler.Estado.ToString().ToLowerInvariant() align-self-start">@alquiler.Estado</span>
+                </div>
+            </div>
+        </article>
+    }
+}

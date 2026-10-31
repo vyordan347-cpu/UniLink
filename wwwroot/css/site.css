@@ -149,6 +149,30 @@ a {
   background: #109c8e;
 }
 
+.btn-solidario {
+  border-color: var(--ul-solidario);
+  color: #fff;
+  background: var(--ul-solidario);
+}
+
+.btn-solidario:hover,
+.btn-solidario:focus {
+  border-color: #e85f4f;
+  color: #fff;
+  background: #e85f4f;
+}
+
+.estado-badge {
+  padding: 0.55em 0.8em;
+  font-size: 0.8rem;
+}
+
+.estado-pendiente { color: #664d03; background: #fff3cd; }
+.estado-aprobado { color: #084298; background: #cfe2ff; }
+.estado-activo { color: #055e56; background: #ccfbf1; }
+.estado-devuelto { color: #41464b; background: #e2e3e5; }
+.estado-rechazado { color: #842029; background: #f8d7da; }
+
 .btn-outline-primary {
   border-color: var(--ul-primario);
   color: var(--ul-primario);

@@ -1,0 +1,34 @@
+@model IReadOnlyList<Alquiler>
+
+@{
+    ViewData["Title"] = "Mis alquileres";
+    var pendientes = Model.Where(alquiler => alquiler.Estado == EstadoSolicitud.Pendiente).ToList();
+    var activos = Model.Where(alquiler => alquiler.Estado is EstadoSolicitud.Aprobado or EstadoSolicitud.Activo).ToList();
+    var historial = Model.Where(alquiler => alquiler.Estado is EstadoSolicitud.Devuelto or EstadoSolicitud.Rechazado).ToList();
+}
+
+<section class="container py-4 py-lg-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+        <div>
+            <p class="eyebrow mb-2">Tu actividad</p>
+            <h1 class="h2 fw-bold mb-0">Mis alquileres</h1>
+        </div>
+        <a asp-controller="Materiales" asp-action="Index" class="btn btn-outline-primary">Explorar materiales</a>
+    </div>
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pendientes" type="button" role="tab">Pendientes (@pendientes.Count)</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#activos" type="button" role="tab">Activos (@activos.Count)</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#historial" type="button" role="tab">Historial (@historial.Count)</button></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="pendientes" role="tabpanel">
+            <partial name="_ListaAlquileres" model="new ListaAlquileresViewModel { Alquileres = pendientes }" />
+        </div>
+        <div class="tab-pane fade" id="activos" role="tabpanel">
+            <partial name="_ListaAlquileres" model="new ListaAlquileresViewModel { Alquileres = activos, MostrarDiasParaDevolver = true }" />
+        </div>
+        <div class="tab-pane fade" id="historial" role="tabpanel">
+            <partial name="_ListaAlquileres" model="new ListaAlquileresViewModel { Alquileres = historial }" />
+        </div>
+    </div>
+</section>
