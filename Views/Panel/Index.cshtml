@@ -1,3 +1,5 @@
+@model IReadOnlyList<UniLink.Models.Categoria>
+
 @{
     ViewData["Title"] = "Mi panel";
 }
@@ -31,6 +33,17 @@
                     <p class="display-5 fw-semibold mb-0">@ViewData["SolicitudesPendientes"]</p>
                 </div>
             </article>
+        </div>
+    </div>
+    <div class="mt-5">
+        <h2 class="h5 mb-3">Categorías de materiales</h2>
+        <div class="d-flex flex-wrap gap-2">
+            @foreach (var categoria in Model)
+            {
+                <span class="badge rounded-pill text-bg-light border text-primary px-3 py-2">
+                    @categoria.Nombre
+                </span>
+            }
         </div>
     </div>
 </section>
