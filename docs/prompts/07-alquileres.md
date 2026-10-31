@@ -25,3 +25,12 @@ Lee AGENTS.md. Estamos en la rama feature/alquileres. Implementa la funcionalida
 ## Resumen
 
 Se implementó el flujo de solicitud de alquiler con cálculo inclusivo y validación de fechas, disponibilidad, propiedad y cruces confirmados. Se agregaron confirmación, las pestañas de alquileres propios y la bandeja de solicitudes recibidas con aprobación, rechazo, entrega y devolución protegidas por antiforgery y verificación de propiedad. Las solicitudes y cambios de estado generan notificaciones persistidas, se actualizaron navegación y estadísticas del panel y no se requirió migración porque las tablas ya existían.
+
+## Corrección checkbox
+
+Lee AGENTS.md. Estamos en la rama fix/aceptar-condiciones. Bug: en /Alquileres/Solicitar, aunque el usuario marca el checkbox "He leído y acepto las condiciones del préstamo", aparece "Debes aceptar las condiciones del préstamo" y no se puede confirmar la solicitud.
+1. Encuentra la causa (probablemente [Range(true,true)] o [Required] sobre un bool, que falla con la validación cliente de jQuery unobtrusive).
+2. Corrígelo así: quita esa validación del atributo, valida en el servidor (si AceptaCondiciones es false, ModelState.AddModelError con el mensaje en español) y en el cliente usa una validación simple con JavaScript que solo bloquee el envío si la casilla NO está marcada.
+3. Revisa si existe el mismo problema en otros formularios (registro, publicar) y corrígelo igual.
+4. Verifica con dotnet build. Agrega al final de docs/prompts/07-alquileres.md una sección "Corrección checkbox" con este prompt.
+5. NO ejecutes git.

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Solicitar alquiler";
+    var material = Model.Material ?? throw new InvalidOperationException("No se cargaron los datos del material para la solicitud.");
 }
 
 <section class="container py-4 py-lg-5">
@@ -9,20 +10,20 @@
     <div class="row g-4 justify-content-center">
         <div class="col-lg-5">
             <article class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                <img class="detalle-imagen w-100" src="@(Model.Material.ImagenUrl ?? "/img/material-default.svg")" alt="@Model.Material.Nombre" />
+                <img class="detalle-imagen w-100" src="@(material.ImagenUrl ?? "/img/material-default.svg")" alt="@material.Nombre" />
                 <div class="card-body p-4">
-                    <p class="eyebrow mb-2">@Model.Material.Categoria.Nombre · @Model.Material.Carrera</p>
-                    <h1 class="h3 fw-bold">@Model.Material.Nombre</h1>
-                    <p class="text-secondary">@Model.Material.Descripcion</p>
-                    <p class="mb-1"><strong>Lugar de entrega:</strong> @Model.Material.Ubicacion</p>
+                    <p class="eyebrow mb-2">@material.Categoria.Nombre · @material.Carrera</p>
+                    <h1 class="h3 fw-bold">@material.Nombre</h1>
+                    <p class="text-secondary">@material.Descripcion</p>
+                    <p class="mb-1"><strong>Lugar de entrega:</strong> @material.Ubicacion</p>
                     <p class="mb-0">
-                        @if (Model.Material.EsSolidario)
+                        @if (material.EsSolidario)
                         {
                             <span class="badge badge-solidario">Préstamo solidario gratuito</span>
                         }
                         else
                         {
-                            <span>S/ @Model.Material.PrecioDia.ToString("0.00") por día</span>
+                            <span>S/ @material.PrecioDia.ToString("0.00") por día</span>
                         }
                     </p>
                 </div>
@@ -32,9 +33,10 @@
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-4 p-md-5">
                     <h2 class="h4 fw-bold mb-4">Elige las fechas de tu préstamo</h2>
-                    <form asp-action="Solicitar" method="post">
+                    <form asp-action="Solicitar" method="post" id="formularioSolicitud">
+                        @Html.AntiForgeryToken()
                         <input asp-for="MaterialId" type="hidden" />
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
                         <div class="row g-3">
                             <div class="col-sm-6">
                                 <label asp-for="FechaInicio" class="form-label fw-semibold">Fecha de inicio</label>
@@ -54,18 +56,18 @@
                             </div>
                             <div class="d-flex justify-content-between mt-2">
                                 <span>Costo total</span>
-                                <strong id="costoAlquiler" data-precio="@Model.Material.PrecioDia">—</strong>
+                                <strong id="costoAlquiler" data-precio="@material.PrecioDia">—</strong>
                             </div>
                             <p class="small text-secondary mb-0 mt-2">El cálculo cuenta tanto el día de inicio como el de devolución.</p>
                         </div>
                         <p class="alert alert-info mt-4 mb-3">El pago se realiza en persona al recoger (efectivo, Yape o Plin).</p>
                         <div class="form-check mb-4">
-                            <input asp-for="AceptaCondiciones" class="form-check-input" />
+                            <input asp-for="AceptaCondiciones" class="form-check-input" id="AceptaCondiciones" />
                             <label asp-for="AceptaCondiciones" class="form-check-label">He leído y acepto las condiciones del préstamo</label>
                             <span asp-validation-for="AceptaCondiciones" class="text-danger d-block"></span>
                         </div>
                         <div class="d-flex flex-wrap gap-2">
-                            <button type="submit" class="btn @(Model.Material.EsSolidario ? "btn-solidario" : "btn-action")">Confirmar solicitud</button>
+                            <button type="submit" class="btn @(material.EsSolidario ? "btn-solidario" : "btn-action")">Confirmar solicitud</button>
                             <a asp-controller="Materiales" asp-action="Detalle" asp-route-id="@Model.MaterialId" class="btn btn-outline-secondary">Cancelar</a>
                         </div>
                     </form>
@@ -84,6 +86,9 @@
             const dias = document.getElementById("diasAlquiler");
             const costo = document.getElementById("costoAlquiler");
             const precioDia = Number(costo.dataset.precio);
+            const formulario = document.getElementById("formularioSolicitud");
+            const aceptaCondiciones = document.getElementById("AceptaCondiciones");
+            const mensajeCondiciones = formulario.querySelector('[data-valmsg-for="AceptaCondiciones"]');
 
             function actualizarCalculo() {
                 if (!inicio.value || !fin.value) {
@@ -108,6 +113,23 @@
             inicio.addEventListener("change", actualizarCalculo);
             fin.addEventListener("change", actualizarCalculo);
             actualizarCalculo();
+
+            formulario.addEventListener("submit", (evento) => {
+                if (aceptaCondiciones.checked) {
+                    mensajeCondiciones.textContent = "";
+                    return;
+                }
+
+                evento.preventDefault();
+                mensajeCondiciones.textContent = "Debes aceptar las condiciones del préstamo.";
+                aceptaCondiciones.focus();
+            });
+
+            aceptaCondiciones.addEventListener("change", () => {
+                if (aceptaCondiciones.checked) {
+                    mensajeCondiciones.textContent = "";
+                }
+            });
         })();
     </script>
 }
