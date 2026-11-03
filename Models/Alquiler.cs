@@ -26,4 +26,6 @@ public class Alquiler
     public EstadoSolicitud Estado { get; set; } = EstadoSolicitud.Pendiente;
 
     public DateTime FechaSolicitud { get; set; } = DateTime.UtcNow;
+
+    public Resena? Resena { get; set; }
 }
