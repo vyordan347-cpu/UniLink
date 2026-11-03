@@ -2,8 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
 using UniLink.Data;
+using UniLink.Hubs;
 using UniLink.Models;
 using UniLink.Services;
 using StackExchange.Redis;
@@ -71,7 +73,10 @@ else
 
 builder.Services.AddSession();
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, UsuarioIdProvider>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<NotificacionService>();
 
 var app = builder.Build();
 
@@ -154,6 +159,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+app.MapHub<NotificacionesHub>("/hubs/notificaciones");
 
 using (var scope = app.Services.CreateScope())
 {
