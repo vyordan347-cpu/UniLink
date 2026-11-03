@@ -10,7 +10,7 @@
             <p class="hero-tagline">Conecta, comparte y aprende.</p>
             <p class="hero-description">En Odontología y Medicina, muchos materiales cuestan cientos de soles y a veces solo se usan un ciclo. UniLink te conecta con estudiantes que pueden compartirlos o ayudarte a aprender.</p>
             <div class="hero-actions">
-                <a class="btn btn-action" asp-controller="Cuenta" asp-action="Login">Iniciar sesión</a>
+                <a class="btn btn-action" asp-controller="Materiales" asp-action="Index">Explorar materiales</a>
                 <a class="btn btn-outline-primary" asp-controller="Cuenta" asp-action="Registro">Crear cuenta</a>
             </div>
             <p class="hero-note">Comparte materiales. Encuentra clases. Crezcan juntos.</p>
@@ -96,6 +96,8 @@
             <h2>UniLink Solidario <span aria-hidden="true">❤️</span></h2>
             <p>Comparte lo que tienes. Ayuda a otro estudiante.</p>
         </div>
-        <a class="btn btn-solidario" href="#">Descubre lo gratuito <span aria-hidden="true">→</span></a>
+        <a class="btn btn-solidario" asp-controller="Materiales" asp-action="Index" asp-route-soloGratuitos="true">
+            Descubre lo gratuito <span aria-hidden="true">→</span>
+        </a>
     </div>
 </section>

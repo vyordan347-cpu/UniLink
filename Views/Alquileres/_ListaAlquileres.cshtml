@@ -2,8 +2,11 @@
 
 @if (Model.Alquileres.Count == 0)
 {
-    <div class="estado-vacio text-center rounded-4 p-5">
-        <p class="text-secondary mb-0">No hay alquileres en esta sección.</p>
+    <div class="estado-vacio text-center">
+        <span class="estado-vacio-icono" aria-hidden="true">⌕</span>
+        <h2 class="h4">No hay alquileres en esta sección</h2>
+        <p>Aquí aparecerán las solicitudes cuando explores materiales.</p>
+        <a class="btn btn-outline-primary" asp-controller="Materiales" asp-action="Index">Explorar materiales</a>
     </div>
 }
 else
