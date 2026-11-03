@@ -385,6 +385,70 @@ namespace UniLink.Migrations
                     b.ToTable("Notificaciones");
                 });
 
+            modelBuilder.Entity("UniLink.Models.Resena", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AlquilerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AutorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Calificacion")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ClaseId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Comentario")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("MaterialId")
+                        .HasColumnType("integer");
+
+                    b.Property<float>("Probabilidad")
+                        .HasColumnType("real");
+
+                    b.Property<int?>("ReservaClaseId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Sentimiento")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<int>("UsuarioReseñadoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AlquilerId")
+                        .IsUnique();
+
+                    b.HasIndex("AutorId");
+
+                    b.HasIndex("ClaseId");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("ReservaClaseId")
+                        .IsUnique();
+
+                    b.HasIndex("UsuarioReseñadoId");
+
+                    b.ToTable("Resenas");
+                });
+
             modelBuilder.Entity("UniLink.Models.ReservaClase", b =>
                 {
                     b.Property<int>("Id")
@@ -630,6 +694,53 @@ namespace UniLink.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("UniLink.Models.Resena", b =>
+                {
+                    b.HasOne("UniLink.Models.Alquiler", "Alquiler")
+                        .WithOne("Resena")
+                        .HasForeignKey("UniLink.Models.Resena", "AlquilerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("UniLink.Models.Usuario", "Autor")
+                        .WithMany("ResenasEscritas")
+                        .HasForeignKey("AutorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("UniLink.Models.Clase", "Clase")
+                        .WithMany("Resenas")
+                        .HasForeignKey("ClaseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("UniLink.Models.Material", "Material")
+                        .WithMany("Resenas")
+                        .HasForeignKey("MaterialId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("UniLink.Models.ReservaClase", "ReservaClase")
+                        .WithOne("Resena")
+                        .HasForeignKey("UniLink.Models.Resena", "ReservaClaseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("UniLink.Models.Usuario", "UsuarioReseñado")
+                        .WithMany("ResenasRecibidas")
+                        .HasForeignKey("UsuarioReseñadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Alquiler");
+
+                    b.Navigation("Autor");
+
+                    b.Navigation("Clase");
+
+                    b.Navigation("Material");
+
+                    b.Navigation("ReservaClase");
+
+                    b.Navigation("UsuarioReseñado");
+                });
+
             modelBuilder.Entity("UniLink.Models.ReservaClase", b =>
                 {
                     b.HasOne("UniLink.Models.Usuario", "Alumno")
@@ -649,6 +760,11 @@ namespace UniLink.Migrations
                     b.Navigation("Clase");
                 });
 
+            modelBuilder.Entity("UniLink.Models.Alquiler", b =>
+                {
+                    b.Navigation("Resena");
+                });
+
             modelBuilder.Entity("UniLink.Models.Categoria", b =>
                 {
                     b.Navigation("Materiales");
@@ -656,12 +772,21 @@ namespace UniLink.Migrations
 
             modelBuilder.Entity("UniLink.Models.Clase", b =>
                 {
+                    b.Navigation("Resenas");
+
                     b.Navigation("Reservas");
                 });
 
             modelBuilder.Entity("UniLink.Models.Material", b =>
                 {
                     b.Navigation("Alquileres");
+
+                    b.Navigation("Resenas");
+                });
+
+            modelBuilder.Entity("UniLink.Models.ReservaClase", b =>
+                {
+                    b.Navigation("Resena");
                 });
 
             modelBuilder.Entity("UniLink.Models.Usuario", b =>
@@ -671,6 +796,10 @@ namespace UniLink.Migrations
                     b.Navigation("MaterialesPublicados");
 
                     b.Navigation("Notificaciones");
+
+                    b.Navigation("ResenasEscritas");
+
+                    b.Navigation("ResenasRecibidas");
 
                     b.Navigation("ReservasClase");
 

@@ -102,6 +102,39 @@ p {
   color: var(--ul-texto-suave) !important;
 }
 
+.resenas-seccion {
+  padding-top: var(--ul-espacio-4);
+}
+
+.resenas-promedio,
+.resena-estrellas {
+  font-weight: 700;
+}
+
+.resenas-promedio span,
+.resena-estrellas {
+  color: var(--ul-estado-pendiente);
+}
+
+.resena-estrellas span {
+  color: var(--ul-texto-suave);
+  font-size: 14px;
+}
+
+.sentimiento-positivo {
+  color: var(--ul-estado-disponible);
+  background: var(--ul-fondo-disponible);
+}
+
+.sentimiento-negativo {
+  color: var(--ul-estado-rechazado);
+  background: var(--ul-fondo-rechazado);
+}
+
+.resena-card time {
+  font-size: 14px;
+}
+
 .small,
 small,
 .form-text {

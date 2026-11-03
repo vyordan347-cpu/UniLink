@@ -118,6 +118,8 @@ public class MaterialesController(
             .AsNoTracking()
             .Include(item => item.Propietario)
             .Include(item => item.Categoria)
+            .Include(item => item.Resenas)
+                .ThenInclude(resena => resena.Autor)
             .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
 
         if (material is null)
@@ -126,6 +128,11 @@ public class MaterialesController(
         }
 
         ViewData["EsPropietario"] = EsPropietario(material);
+        ViewData["ResumenResenas"] = new ResenasResumenViewModel
+        {
+            Resenas = material.Resenas.OrderByDescending(resena => resena.Fecha).ToList(),
+            PromedioCalificacion = material.Resenas.Count == 0 ? 0 : material.Resenas.Average(resena => resena.Calificacion)
+        };
         ViewData["Title"] = material.Nombre;
         return View(material);
     }

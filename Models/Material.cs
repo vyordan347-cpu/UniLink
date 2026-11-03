@@ -47,4 +47,5 @@ public class Material
     public DateTime FechaPublicacion { get; set; } = DateTime.UtcNow;
 
     public ICollection<Alquiler> Alquileres { get; set; } = new List<Alquiler>();
+    public ICollection<Resena> Resenas { get; set; } = new List<Resena>();
 }

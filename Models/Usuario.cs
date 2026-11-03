@@ -27,4 +27,6 @@ public class Usuario : IdentityUser<int>
     public ICollection<Clase> ClasesPublicadas { get; set; } = new List<Clase>();
     public ICollection<ReservaClase> ReservasClase { get; set; } = new List<ReservaClase>();
     public ICollection<Notificacion> Notificaciones { get; set; } = new List<Notificacion>();
+    public ICollection<Resena> ResenasEscritas { get; set; } = new List<Resena>();
+    public ICollection<Resena> ResenasRecibidas { get; set; } = new List<Resena>();
 }

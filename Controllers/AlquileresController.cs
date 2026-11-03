@@ -203,6 +203,7 @@ public class AlquileresController(
         var alquileres = await db.Alquileres
             .AsNoTracking()
             .Include(alquiler => alquiler.Material)
+            .Include(alquiler => alquiler.Resena)
             .Where(alquiler => alquiler.SolicitanteId == usuarioId.Value)
             .OrderByDescending(alquiler => alquiler.FechaSolicitud)
             .ToListAsync(cancellationToken);
