@@ -189,6 +189,42 @@ small,
   background: var(--ul-tinte-primario);
 }
 
+.nav-notificaciones {
+  position: relative;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  padding: 8px !important;
+}
+
+.nav-notificaciones svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.notificaciones-contador {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0 5px;
+  border: 2px solid var(--ul-superficie);
+  border-radius: var(--ul-radio-badge);
+  color: var(--ul-superficie);
+  background: var(--ul-primario);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .nav-avatar {
   display: inline-flex !important;
   width: auto;
@@ -912,6 +948,91 @@ textarea.form-control {
 .site-footer span {
   color: var(--ul-primario);
   font-weight: 750;
+}
+
+.notificaciones-lista {
+  display: grid;
+  gap: var(--ul-espacio-2);
+}
+
+.notificacion-item {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ul-espacio-2);
+  min-height: 88px;
+  padding: var(--ul-espacio-2) var(--ul-espacio-3);
+  border: 1px solid var(--ul-borde);
+  border-radius: var(--ul-radio-tarjeta);
+  color: var(--ul-texto);
+  background: var(--ul-superficie);
+  box-shadow: var(--ul-sombra-sutil);
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.notificacion-item:hover,
+.notificacion-item:focus-visible {
+  border-color: var(--ul-accion);
+  color: var(--ul-texto);
+  box-shadow: var(--ul-sombra-tarjeta);
+  text-decoration: none;
+}
+
+.notificacion-item.no-leida {
+  border-color: var(--ul-tinte-primario);
+  background: var(--ul-tinte-primario);
+}
+
+.notificacion-indicador {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.no-leida .notificacion-indicador {
+  background: var(--ul-accion);
+}
+
+.notificacion-contenido {
+  display: grid;
+  gap: 4px;
+}
+
+.notificacion-mensaje {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.no-leida .notificacion-mensaje {
+  font-weight: 700;
+}
+
+.notificacion-fecha {
+  color: var(--ul-texto-suave);
+  font-size: 14px;
+}
+
+.notificacion-flecha {
+  color: var(--ul-primario);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.notificacion-toast {
+  width: min(380px, calc(100vw - 32px));
+  border: 1px solid var(--ul-borde);
+  border-radius: var(--ul-radio-tarjeta);
+  box-shadow: var(--ul-sombra-tarjeta);
+}
+
+.notificacion-toast .toast-header {
+  color: var(--ul-primario);
+  background: var(--ul-superficie);
+}
+
+.notificacion-toast .toast-body {
+  background: var(--ul-superficie);
 }
 
 .alert {
