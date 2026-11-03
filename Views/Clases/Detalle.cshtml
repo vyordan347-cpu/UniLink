@@ -2,6 +2,7 @@
 
 @{
     var esTutor = ViewData["EsTutor"] is true;
+    var resumenResenas = ViewData["ResumenResenas"] as ResenasResumenViewModel ?? new ResenasResumenViewModel();
     ViewData["Title"] = Model.Curso;
 }
 
@@ -29,7 +30,10 @@
             <p class="detalle-descripcion">@Model.Descripcion</p>
             <dl class="row mt-4">
                 <dt class="col-sm-3">Tutor</dt>
-                <dd class="col-sm-9">@Model.Tutor.Nombre · @Model.Tutor.Carrera</dd>
+                <dd class="col-sm-9">
+                    <a asp-controller="Cuenta" asp-action="Perfil" asp-route-id="@Model.TutorId">@Model.Tutor.Nombre</a>
+                    · @Model.Tutor.Carrera
+                </dd>
                 <dt class="col-sm-3">Modalidad</dt>
                 <dd class="col-sm-9">@ModalidadClaseHelper.ObtenerEtiqueta(Model.Modalidad)</dd>
             </dl>
@@ -52,6 +56,7 @@
             }
         </div>
     </article>
+    <partial name="_Resenas" model="resumenResenas" />
 </section>
 
 @section Styles {

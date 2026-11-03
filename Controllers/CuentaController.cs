@@ -1,14 +1,46 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using UniLink.Data;
 using UniLink.Models;
 
 namespace UniLink.Controllers;
 
 public class CuentaController(
     UserManager<Usuario> userManager,
-    SignInManager<Usuario> signInManager) : Controller
+    SignInManager<Usuario> signInManager,
+    UniLinkDbContext db) : Controller
 {
+    [HttpGet]
+    public async Task<IActionResult> Perfil(int id, CancellationToken cancellationToken)
+    {
+        var usuario = await db.Usuarios.AsNoTracking()
+            .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+        if (usuario is null)
+        {
+            return NotFound();
+        }
+
+        var resenas = await db.Resenas.AsNoTracking()
+            .Include(resena => resena.Autor)
+            .Include(resena => resena.Material)
+            .Include(resena => resena.Clase)
+            .Where(resena => resena.UsuarioReseñadoId == id)
+            .OrderByDescending(resena => resena.Fecha)
+            .ToListAsync(cancellationToken);
+
+        ViewData["Title"] = $"Perfil de {usuario.Nombre}";
+        return View(new PerfilViewModel
+        {
+            Usuario = usuario,
+            ResumenResenas = new ResenasResumenViewModel
+            {
+                Resenas = resenas,
+                PromedioCalificacion = resenas.Count == 0 ? 0 : resenas.Average(resena => resena.Calificacion)
+            }
+        });
+    }
+
     [HttpGet]
     public IActionResult Registro()
     {

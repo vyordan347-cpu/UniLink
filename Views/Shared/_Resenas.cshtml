@@ -1,0 +1,48 @@
+@model ResenasResumenViewModel
+
+<section class="resenas-seccion mt-5" aria-labelledby="resenas-titulo">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-3">
+        <div>
+            <p class="eyebrow mb-1">Experiencias de estudiantes</p>
+            <h2 class="h2 mb-0" id="resenas-titulo">Reseñas</h2>
+        </div>
+        <p class="resenas-promedio mb-0">
+            <span aria-label="@Model.PromedioCalificacion.ToString("0.0") de 5 estrellas">★</span>
+            @Model.PromedioCalificacion.ToString("0.0") de 5 · @Model.Resenas.Count reseñas
+        </p>
+    </div>
+    @if (Model.Resenas.Count == 0)
+    {
+        <p class="text-secondary">Aún no hay reseñas.</p>
+    }
+    else
+    {
+        <div class="d-grid gap-3">
+            @foreach (var resena in Model.Resenas)
+            {
+                <article class="card resena-card">
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                            <div>
+                                <a class="fw-semibold" asp-controller="Cuenta" asp-action="Perfil" asp-route-id="@resena.AutorId">
+                                    @resena.Autor.Nombre
+                                </a>
+                                <p class="resena-estrellas mb-0" aria-label="@resena.Calificacion de 5 estrellas">
+                                    @string.Concat(Enumerable.Repeat("★", resena.Calificacion))
+                                    <span>@resena.Calificacion/5</span>
+                                </p>
+                            </div>
+                            <span class="badge sentimiento-@(resena.Sentimiento == "Positivo" ? "positivo" : "negativo")">
+                                @resena.Sentimiento · @resena.Probabilidad.ToString("P0")
+                            </span>
+                        </div>
+                        <p class="mb-2">@resena.Comentario</p>
+                        <time class="text-secondary" datetime="@resena.Fecha.ToString("O")">
+                            @resena.Fecha.ToLocalTime().ToString("dd/MM/yyyy")
+                        </time>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

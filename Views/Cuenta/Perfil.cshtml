@@ -1,0 +1,16 @@
+@model PerfilViewModel
+
+@{
+    ViewData["Title"] = $"Perfil de {Model.Usuario.Nombre}";
+}
+
+<section class="container py-4 py-lg-5">
+    <article class="card perfil-card mb-4">
+        <div class="card-body p-4 p-md-5">
+            <p class="eyebrow mb-2">Perfil de estudiante</p>
+            <h1 class="h2 mb-2">@Model.Usuario.Nombre</h1>
+            <p class="text-secondary mb-0">@Model.Usuario.Carrera</p>
+        </div>
+    </article>
+    <partial name="_Resenas" model="Model.ResumenResenas" />
+</section>

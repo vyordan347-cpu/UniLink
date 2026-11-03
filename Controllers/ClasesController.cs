@@ -73,6 +73,8 @@ public class ClasesController(
     {
         var clase = await db.Clases.AsNoTracking()
             .Include(item => item.Tutor)
+            .Include(item => item.Resenas)
+                .ThenInclude(resena => resena.Autor)
             .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
         if (clase is null)
         {
@@ -80,6 +82,11 @@ public class ClasesController(
         }
 
         ViewData["EsTutor"] = EsTutor(clase);
+        ViewData["ResumenResenas"] = new ResenasResumenViewModel
+        {
+            Resenas = clase.Resenas.OrderByDescending(resena => resena.Fecha).ToList(),
+            PromedioCalificacion = clase.Resenas.Count == 0 ? 0 : clase.Resenas.Average(resena => resena.Calificacion)
+        };
         ViewData["Title"] = clase.Curso;
         return View(clase);
     }
@@ -357,12 +364,14 @@ public class ClasesController(
         var reservasAlumno = await db.ReservasClase.AsNoTracking()
             .Include(reserva => reserva.Clase)
                 .ThenInclude(clase => clase.Tutor)
+            .Include(reserva => reserva.Resena)
             .Where(reserva => reserva.AlumnoId == usuarioId.Value)
             .OrderBy(reserva => reserva.FechaHora)
             .ToListAsync(cancellationToken);
         var reservasTutor = await db.ReservasClase.AsNoTracking()
             .Include(reserva => reserva.Clase)
                 .ThenInclude(clase => clase.Tutor)
+            .Include(reserva => reserva.Resena)
             .Include(reserva => reserva.Alumno)
             .Where(reserva => reserva.Clase.TutorId == usuarioId.Value)
             .OrderBy(reserva => reserva.FechaHora)

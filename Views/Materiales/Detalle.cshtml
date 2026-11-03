@@ -2,6 +2,7 @@
 
 @{
     var esPropietario = ViewData["EsPropietario"] is true;
+    var resumenResenas = ViewData["ResumenResenas"] as ResenasResumenViewModel ?? new ResenasResumenViewModel();
     ViewData["Title"] = Model.Nombre;
 }
 
@@ -45,7 +46,11 @@
                         <dt class="col-sm-4">Ubicación</dt>
                         <dd class="col-sm-8">@Model.Ubicacion</dd>
                         <dt class="col-sm-4">Publicado por</dt>
-                        <dd class="col-sm-8">@Model.Propietario.Nombre · @Model.Propietario.Carrera</dd>
+                        <dd class="col-sm-8">
+                            <a asp-controller="Cuenta" asp-action="Perfil" asp-route-id="@Model.PropietarioId">
+                                @Model.Propietario.Nombre
+                            </a> · @Model.Propietario.Carrera
+                        </dd>
                         <dt class="col-sm-4">Publicado el</dt>
                         <dd class="col-sm-8">@Model.FechaPublicacion.ToLocalTime().ToString("dd/MM/yyyy")</dd>
                     </dl>
@@ -80,6 +85,7 @@
             </div>
         </div>
     </div>
+    <partial name="_Resenas" model="resumenResenas" />
 </section>
 
 @section Styles {
