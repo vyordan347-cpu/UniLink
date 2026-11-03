@@ -1,0 +1,25 @@
+@model Alquiler
+
+@{
+    ViewData["Title"] = "Solicitud enviada";
+}
+
+<section class="container py-5">
+    <div class="card confirmation-card mx-auto">
+        <div class="card-body">
+            <p class="eyebrow">Alquileres</p>
+            <h1 class="fw-bold">¡Solicitud enviada!</h1>
+            <p class="text-secondary">Tu solicitud está pendiente de aprobación por el dueño.</p>
+            <div class="rounded-3 bg-light p-3 my-4">
+                <h2 class="h5 fw-bold">@Model.Material.Nombre</h2>
+                <p class="mb-2">@Model.FechaInicio.ToString("dd/MM/yyyy") – @Model.FechaFin.ToString("dd/MM/yyyy")</p>
+                <p class="mb-2">Costo total: <strong>S/ @Model.CostoTotal.ToString("0.00")</strong></p>
+                <span class="badge estado-badge estado-pendiente">Pendiente</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-action="Index" class="btn btn-action">Ver mis alquileres</a>
+                <a asp-controller="Materiales" asp-action="Index" class="btn btn-outline-secondary">Explorar materiales</a>
+            </div>
+        </div>
+    </div>
+</section>

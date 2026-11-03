@@ -1,0 +1,57 @@
+@model ReservaClaseViewModel
+
+@{
+    ViewData["Title"] = "Reservar clase";
+}
+
+<section class="container py-4 py-lg-5">
+    <div class="formulario-encabezado mb-4">
+        <p class="eyebrow mb-2">@Model.Clase!.Curso</p>
+        <h1>Reservar clase</h1>
+        <p class="text-secondary">Con @Model.Clase.Tutor.Nombre · @ModalidadClaseHelper.ObtenerEtiqueta(Model.Clase.Modalidad)</p>
+    </div>
+    <form asp-action="Reservar" method="post" class="card formulario-clase" data-reserva-clase data-precio-hora="@Model.Clase.PrecioHora.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+        <div class="card-body">
+            <input asp-for="ClaseId" type="hidden" />
+            <input asp-for="DesfaseHorarioMinutos" type="hidden" data-desfase-horario />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div class="mb-3">
+                <label asp-for="FechaHora" class="form-label">Fecha y hora</label>
+                <input asp-for="FechaHora" type="datetime-local" class="form-control"
+                       data-fecha-reserva data-inicializar-fecha="@(Model.FechaHora == default)" />
+                <span asp-validation-for="FechaHora" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="DuracionHoras" class="form-label">Duración</label>
+                <select asp-for="DuracionHoras" class="form-select" data-duracion-reserva>
+                    <option value="1">1 hora</option>
+                    <option value="2">2 horas</option>
+                    <option value="3">3 horas</option>
+                </select>
+                <span asp-validation-for="DuracionHoras" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TemaAReforzar" class="form-label">¿Qué tema necesitas reforzar? (opcional)</label>
+                <textarea asp-for="TemaAReforzar" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="TemaAReforzar" class="text-danger"></span>
+            </div>
+            <p class="precio-total-clase" data-costo-reserva aria-live="polite"></p>
+            <div class="form-check mb-3">
+                <input asp-for="AceptaCondiciones" class="form-check-input" data-acepta-condiciones />
+                <label asp-for="AceptaCondiciones" class="form-check-label">Acepto coordinar la clase directamente con el tutor. UniLink no procesa pagos.</label>
+                <span asp-validation-for="AceptaCondiciones" class="text-danger d-block"></span>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="submit" class="btn @(Model.Clase.EsSolidaria ? "btn-solidario" : "btn-action")">Enviar reserva</button>
+                <a class="btn btn-outline-secondary" asp-action="Detalle" asp-route-id="@Model.ClaseId">Cancelar</a>
+            </div>
+        </div>
+    </form>
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/clases.css" asp-append-version="true" />
+}
+@section Scripts {
+    <script src="~/js/clases.js" asp-append-version="true"></script>
+}

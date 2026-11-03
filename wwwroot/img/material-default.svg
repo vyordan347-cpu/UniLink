@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-labelledby="titulo descripcion">
+  <title id="titulo">Material académico</title>
+  <desc id="descripcion">Ilustración predeterminada de un libro y una caja de materiales.</desc>
+  <rect width="800" height="520" fill="#F7F8FC"/>
+  <circle cx="640" cy="112" r="72" fill="#E9EBFF"/>
+  <path d="M167 363h466v34H167z" fill="#DDE1F7"/>
+  <path d="M233 164c48-23 96-20 144 7v174c-48-27-96-30-144-7z" fill="#fff" stroke="#3B4CCA" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M377 171c48-27 96-30 144-7v174c-48-23-96-20-144 7z" fill="#EEF0FF" stroke="#3B4CCA" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M377 171v174" fill="none" stroke="#3B4CCA" stroke-width="9"/>
+  <path d="M267 212c29-9 58-7 87 5M267 246c29-9 58-7 87 5M267 280c29-9 58-7 87 5M411 217c28-12 57-14 86-5M411 251c28-12 57-14 86-5M411 285c28-12 57-14 86-5" fill="none" stroke="#A8B0EF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M561 276h91v87h-91z" fill="#D8F5F1" stroke="#14B8A6" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M549 276l57-44 57 44" fill="#14B8A6" stroke="#14B8A6" stroke-width="12" stroke-linejoin="round"/>
+  <circle cx="606" cy="316" r="10" fill="#3B4CCA"/>
+</svg>

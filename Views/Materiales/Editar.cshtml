@@ -1,0 +1,27 @@
+@model MaterialViewModel
+
+@{
+    ViewData["Title"] = "Editar material";
+}
+
+<section class="container form-page">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="mb-4">
+                <p class="eyebrow mb-2">Tu publicación</p>
+                <h1 class="fw-bold">Editar material</h1>
+            </div>
+            <div class="form-card">
+                <partial name="_Formulario" model="Model" />
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/materiales.css" asp-append-version="true" />
+}
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/materiales.js" asp-append-version="true"></script>
+}

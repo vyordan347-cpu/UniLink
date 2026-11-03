@@ -1,0 +1,79 @@
+@model MaterialViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    var categorias = (IEnumerable<SelectListItem>)ViewData["Categorias"]!;
+}
+
+<form asp-action="@(Model.Id == 0 ? "Publicar" : "Editar")"
+      asp-route-id="@(Model.Id > 0 ? Model.Id : (int?)null)" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <div class="row g-3">
+        <div class="col-md-7">
+            <label asp-for="Nombre" class="form-label"></label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+        <div class="col-md-5">
+            <label asp-for="CategoriaId" class="form-label"></label>
+            <select asp-for="CategoriaId" asp-items="categorias" class="form-select">
+                <option value="">Selecciona una categoría</option>
+            </select>
+            <span asp-validation-for="CategoriaId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Carrera" class="form-label"></label>
+            <input asp-for="Carrera" class="form-control" />
+            <span asp-validation-for="Carrera" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Condicion" class="form-label"></label>
+            <select asp-for="Condicion" asp-items="Html.GetEnumSelectList<CondicionMaterial>()" class="form-select"></select>
+            <span asp-validation-for="Condicion" class="text-danger"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="Descripcion" class="form-label"></label>
+            <textarea asp-for="Descripcion" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Descripcion" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Ubicacion" class="form-label"></label>
+            <input asp-for="Ubicacion" class="form-control" placeholder="Ej. Facultad de Medicina" />
+            <span asp-validation-for="Ubicacion" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="ImagenUrl" class="form-label"></label>
+            <input asp-for="ImagenUrl" class="form-control" type="url" />
+            <span asp-validation-for="ImagenUrl" class="text-danger"></span>
+            <div class="form-text">Si no agregas una imagen, mostraremos una ilustración predeterminada.</div>
+        </div>
+        <div class="col-12">
+            <div class="form-check">
+                <input asp-for="Esterilizado" class="form-check-input" />
+                <label asp-for="Esterilizado" class="form-check-label"></label>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="form-check check-solidario rounded-3 p-3 ps-5">
+                <input asp-for="EsSolidario" class="form-check-input" data-solidario-toggle />
+                <label asp-for="EsSolidario" class="form-check-label fw-semibold"></label>
+                <div class="form-text">Tu préstamo será gratuito para otro estudiante.</div>
+            </div>
+        </div>
+        <div class="col-md-6" data-precio-container>
+            <label asp-for="PrecioDia" class="form-label"></label>
+            <div class="input-group">
+                <span class="input-group-text">S/</span>
+                <input asp-for="PrecioDia" class="form-control" type="number" min="0.01" step="0.01" />
+            </div>
+            <span asp-validation-for="PrecioDia" class="text-danger"></span>
+        </div>
+        <div class="col-12 d-flex flex-column flex-sm-row gap-2 mt-4">
+            <button type="submit" class="btn btn-primary px-4">@(Model.Id == 0 ? "Publicar material" : "Guardar cambios")</button>
+            <a asp-action="@(Model.Id == 0 ? "Index" : "Detalle")"
+               asp-route-id="@(Model.Id > 0 ? Model.Id : (int?)null)"
+               class="btn btn-outline-secondary px-4">Cancelar</a>
+        </div>
+    </div>
+</form>

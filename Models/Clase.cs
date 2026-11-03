@@ -17,12 +17,7 @@ public class Clase
 
     public ModalidadClase Modalidad { get; set; }
 
-    [Required(ErrorMessage = "El enlace de la reunión es obligatorio.")]
-    [StringLength(500, ErrorMessage = "El enlace no puede superar los 500 caracteres.")]
-    public string EnlaceReunion { get; set; } = string.Empty;
-
     [Column(TypeName = "numeric(10,2)")]
-    [Range(0, 99999999.99, ErrorMessage = "El precio por hora debe ser de 0 a 99 999 999,99 soles.")]
     public decimal PrecioHora { get; set; }
 
     public bool EsSolidaria { get; set; }

@@ -1,0 +1,83 @@
+.materiales-encabezado {
+    padding-top: var(--ul-espacio-5);
+    padding-bottom: var(--ul-espacio-5);
+    background: var(--ul-superficie);
+    border-bottom: 1px solid var(--ul-borde);
+}
+
+.tarjeta-material {
+    height: 100%;
+    overflow: hidden;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.tarjeta-material:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ul-sombra-hover) !important;
+}
+
+.tarjeta-material-imagen {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    background: var(--ul-fondo);
+}
+
+.detalle-imagen {
+    min-height: 320px;
+    max-height: 620px;
+    object-fit: cover;
+    background: var(--ul-fondo);
+}
+
+.precio-material {
+    color: var(--ul-texto);
+    font-size: 20px;
+    font-weight: 750;
+}
+
+.precio-material span {
+    color: var(--ul-texto-suave);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.precio-solidario {
+    color: var(--ul-solidario);
+}
+
+.badge-solidario {
+    letter-spacing: .02em;
+}
+
+.material-descripcion {
+    line-height: 1.7;
+    white-space: pre-line;
+}
+
+.check-solidario {
+    border: 1px solid var(--ul-solidario);
+    border-radius: var(--ul-radio-tarjeta);
+    background: var(--ul-tinte-solidario);
+}
+
+.check-solidario .form-check-input:checked {
+    border-color: var(--ul-solidario);
+    background-color: var(--ul-solidario);
+}
+
+.estado-vacio {
+    background: var(--ul-superficie);
+}
+
+@media (max-width: 767.98px) {
+    .materiales-encabezado {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+
+    .detalle-imagen {
+        min-height: 240px;
+        max-height: 360px;
+    }
+}

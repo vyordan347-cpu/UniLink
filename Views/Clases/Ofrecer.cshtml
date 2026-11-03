@@ -1,0 +1,21 @@
+@model ClaseViewModel
+
+@{
+    ViewData["Title"] = "Ofrecer clase";
+}
+
+<section class="container py-4 py-lg-5">
+    <div class="formulario-encabezado mb-4">
+        <p class="eyebrow mb-2">Enseña a tu comunidad</p>
+        <h1>Ofrecer una clase</h1>
+        <p class="text-secondary">Comparte tus conocimientos por Videollamada UniLink, Google Meet o Zoom.</p>
+    </div>
+    <partial name="_Formulario" model="Model" />
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/clases.css" asp-append-version="true" />
+}
+@section Scripts {
+    <script src="~/js/clases.js" asp-append-version="true"></script>
+}
