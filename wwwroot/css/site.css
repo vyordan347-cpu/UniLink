@@ -190,16 +190,24 @@ small,
 }
 
 .nav-avatar {
-  display: inline-grid !important;
-  width: 42px;
+  display: inline-flex !important;
+  width: auto;
   height: 42px;
-  padding: 0 !important;
-  place-items: center;
+  gap: 6px;
+  padding: 0 8px !important;
   border: 0;
-  border-radius: 50% !important;
+  border-radius: var(--ul-radio-boton) !important;
   color: var(--ul-primario) !important;
-  background: var(--ul-tinte-primario);
   font-weight: 700;
+}
+
+.nav-avatar-inicial {
+  width: 36px;
+  height: 36px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ul-tinte-primario);
 }
 
 .site-offcanvas {

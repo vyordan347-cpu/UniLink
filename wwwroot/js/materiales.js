@@ -3,8 +3,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const contenedorPrecio = document.querySelector("[data-precio-container]");
 
     if (checkboxSolidario && contenedorPrecio) {
+        const campoPrecio = contenedorPrecio.querySelector("[name='PrecioDia']");
         const actualizarPrecio = () => {
             contenedorPrecio.hidden = checkboxSolidario.checked;
+            campoPrecio.disabled = checkboxSolidario.checked;
         };
 
         checkboxSolidario.addEventListener("change", actualizarPrecio);

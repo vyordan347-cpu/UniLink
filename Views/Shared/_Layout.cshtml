@@ -2,15 +2,14 @@
 @{
     var controladorActual = ViewContext.RouteData.Values["controller"]?.ToString();
     var accionActual = ViewContext.RouteData.Values["action"]?.ToString();
-    var soloSolidario = string.Equals(Context.Request.Query["soloGratuitos"], "true", StringComparison.OrdinalIgnoreCase);
     var estaAutenticado = User.Identity?.IsAuthenticated == true;
-    var explorarActivo = controladorActual == "Materiales"
-        && (accionActual == "Index" || accionActual == "Detalle")
-        && !soloSolidario;
-    var solidarioActivo = controladorActual == "Materiales" && accionActual == "Index" && soloSolidario;
+    var explorarActivo = controladorActual == "Materiales" && (accionActual == "Index" || accionActual == "Detalle")
+        || controladorActual == "Clases" && (accionActual == "Index" || accionActual == "Detalle");
+    var solidarioActivo = controladorActual == "Solidario";
     var actividadActiva = controladorActual == "Alquileres"
+        || controladorActual == "Clases" && (accionActual == "Mias" || accionActual == "Confirmacion")
         || (controladorActual == "Materiales" && accionActual == "Mios");
-    var nombreUsuario = User.Identity?.Name;
+    var nombreUsuario = Context.Session.GetString("NombreUsuario") ?? User.Identity?.Name;
     var inicialUsuario = !string.IsNullOrWhiteSpace(nombreUsuario)
         ? nombreUsuario[..1].ToUpperInvariant()
         : "U";
@@ -40,7 +39,7 @@
                        asp-controller="Materiales" asp-action="Index">Explorar</a>
                     <a class="nav-link @(solidarioActivo ? "active" : "")"
                        aria-current="@(solidarioActivo ? "page" : null)"
-                       asp-controller="Materiales" asp-action="Index" asp-route-soloGratuitos="true">Solidario</a>
+                       asp-controller="Solidario" asp-action="Index">Solidario</a>
                     @if (estaAutenticado)
                     {
                         <div class="dropdown">
@@ -55,13 +54,23 @@
                                        asp-controller="Alquileres" asp-action="Recibidas">Solicitudes</a></li>
                                 <li><a class="dropdown-item @(controladorActual == "Materiales" && accionActual == "Mios" ? "active" : "")"
                                        asp-controller="Materiales" asp-action="Mios">Mis materiales</a></li>
+                                <li><a class="dropdown-item @(controladorActual == "Clases" && accionActual == "Mias" ? "active" : "")"
+                                       asp-controller="Clases" asp-action="Mias">Mis clases</a></li>
                             </ul>
                         </div>
-                        <a class="nav-link nav-publish" asp-controller="Materiales" asp-action="Publicar">Publicar</a>
+                        <div class="dropdown">
+                            <button class="nav-link nav-publish dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Publicar
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-controller="Materiales" asp-action="Publicar">Publicar material</a></li>
+                                <li><a class="dropdown-item" asp-controller="Clases" asp-action="Ofrecer">Ofrecer clase</a></li>
+                            </ul>
+                        </div>
                         <div class="dropdown">
                             <button class="nav-link nav-avatar dropdown-toggle" type="button" data-bs-toggle="dropdown"
                                     aria-expanded="false" aria-label="Abrir menú de usuario">
-                                @inicialUsuario
+                                <span class="nav-avatar-inicial">@inicialUsuario</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item @(controladorActual == "Panel" ? "active" : "")"
@@ -103,7 +112,7 @@
                        asp-controller="Materiales" asp-action="Index">Explorar</a>
                     <a class="nav-link @(solidarioActivo ? "active" : "")"
                        aria-current="@(solidarioActivo ? "page" : null)"
-                       asp-controller="Materiales" asp-action="Index" asp-route-soloGratuitos="true">Solidario</a>
+                       asp-controller="Solidario" asp-action="Index">Solidario</a>
                     @if (estaAutenticado)
                     {
                         <div class="mobile-nav-group">
@@ -114,8 +123,14 @@
                                asp-controller="Alquileres" asp-action="Recibidas">Solicitudes</a>
                             <a class="nav-link @(controladorActual == "Materiales" && accionActual == "Mios" ? "active" : "")"
                                asp-controller="Materiales" asp-action="Mios">Mis materiales</a>
+                            <a class="nav-link @(controladorActual == "Clases" && accionActual == "Mias" ? "active" : "")"
+                               asp-controller="Clases" asp-action="Mias">Mis clases</a>
                         </div>
-                        <a class="nav-link nav-publish" asp-controller="Materiales" asp-action="Publicar">Publicar</a>
+                        <div class="mobile-nav-group">
+                            <p class="mobile-nav-heading">Publicar</p>
+                            <a class="nav-link" asp-controller="Materiales" asp-action="Publicar">Publicar material</a>
+                            <a class="nav-link" asp-controller="Clases" asp-action="Ofrecer">Ofrecer clase</a>
+                        </div>
                         <a class="nav-link @(controladorActual == "Panel" ? "active" : "")"
                            asp-controller="Panel" asp-action="Index">Mi panel</a>
                         <form asp-controller="Cuenta" asp-action="Logout" method="post">

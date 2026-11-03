@@ -1,0 +1,59 @@
+@model Clase
+
+@{
+    var esTutor = ViewData["EsTutor"] is true;
+    ViewData["Title"] = Model.Curso;
+}
+
+<section class="container py-4 py-lg-5">
+    <a asp-action="Index" class="link-secondary d-inline-block mb-4">← Volver a clases</a>
+    <article class="card detalle-clase">
+        <div class="card-body p-4 p-md-5">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                @if (Model.EsSolidaria)
+                {
+                    <span class="badge badge-solidario">GRATUITO</span>
+                }
+                <span class="badge badge-modalidad">@ModalidadClaseHelper.ObtenerEtiqueta(Model.Modalidad)</span>
+            </div>
+            <p class="eyebrow mb-2">@Model.Tutor.Carrera</p>
+            <h1 class="mb-3">@Model.Curso</h1>
+            @if (Model.EsSolidaria)
+            {
+                <p class="precio-clase precio-solidario mb-4">Clase solidaria gratuita</p>
+            }
+            else
+            {
+                <p class="precio-clase mb-4">S/ @Model.PrecioHora.ToString("0.00") <span>por hora</span></p>
+            }
+            <p class="detalle-descripcion">@Model.Descripcion</p>
+            <dl class="row mt-4">
+                <dt class="col-sm-3">Tutor</dt>
+                <dd class="col-sm-9">@Model.Tutor.Nombre · @Model.Tutor.Carrera</dd>
+                <dt class="col-sm-3">Modalidad</dt>
+                <dd class="col-sm-9">@ModalidadClaseHelper.ObtenerEtiqueta(Model.Modalidad)</dd>
+            </dl>
+            @if (esTutor)
+            {
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a class="btn btn-action" asp-action="Editar" asp-route-id="@Model.Id">Editar clase</a>
+                    <form asp-action="Eliminar" asp-route-id="@Model.Id" method="post"
+                          onsubmit="return confirm('¿Eliminar esta clase?');">
+                        <button type="submit" class="btn btn-outline-danger">Eliminar</button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <a class="btn @(Model.EsSolidaria ? "btn-solidario" : "btn-action") mt-3"
+                   asp-action="Reservar" asp-route-id="@Model.Id">
+                    @(Model.EsSolidaria ? "Reservar clase solidaria" : "Reservar clase")
+                </a>
+            }
+        </div>
+    </article>
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/clases.css" asp-append-version="true" />
+}

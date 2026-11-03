@@ -1,0 +1,107 @@
+@model ClasesExplorarViewModel
+
+@{
+    ViewData["Title"] = "Explorar clases";
+}
+
+<section class="clases-encabezado">
+    <div class="container">
+        <p class="eyebrow mb-2">Comparte, encuentra y aprende</p>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
+            <div>
+                <h1 class="mb-2">Explora clases</h1>
+                <p class="text-secondary mb-0">Aprende de estudiantes tutores de tu comunidad.</p>
+            </div>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="btn btn-action" asp-action="Ofrecer">Ofrecer una clase</a>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="container py-4 py-lg-5">
+    <nav class="explorar-tabs mb-4" aria-label="Explorar">
+        <a asp-controller="Materiales" asp-action="Index">Materiales</a>
+        <a class="active" aria-current="page" asp-controller="Clases" asp-action="Index">Clases</a>
+    </nav>
+    <form asp-action="Index" method="get" class="card mb-4" data-clases-filtros data-api-url="/api/clases">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-6 col-lg-4">
+                    <label asp-for="Curso" class="form-label">Curso</label>
+                    <input asp-for="Curso" class="form-control" placeholder="Ej. Anatomía" />
+                </div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <label asp-for="Carrera" class="form-label">Carrera</label>
+                    <select asp-for="Carrera" class="form-select">
+                        <option value="">Todas las carreras</option>
+                        @foreach (var carrera in Model.Carreras)
+                        {
+                            <option value="@carrera">@carrera</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-6 col-lg-2">
+                    <div class="form-check">
+                        <input asp-for="SoloGratuitas" class="form-check-input" />
+                        <label asp-for="SoloGratuitas" class="form-check-label fw-semibold">Solo gratuitas</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-action flex-grow-1">Filtrar</button>
+                    <a class="btn btn-outline-secondary" asp-action="Index">Limpiar</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <p class="text-secondary mb-3" data-clases-conteo aria-live="polite">
+        @Model.Clases.Count @(Model.Clases.Count == 1 ? "clase encontrada" : "clases encontradas")
+    </p>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4" data-clases-lista>
+        @foreach (var clase in Model.Clases)
+        {
+            <div class="col">
+                <article class="card tarjeta-clase h-100">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            @if (clase.EsSolidaria)
+                            {
+                                <span class="badge badge-solidario">GRATUITO</span>
+                            }
+                            <span class="badge badge-modalidad">@ModalidadClaseHelper.ObtenerEtiqueta(clase.Modalidad)</span>
+                        </div>
+                        <p class="small text-primary fw-semibold mb-1">@clase.Tutor.Carrera</p>
+                        <h2 class="h3">@clase.Curso</h2>
+                        <p class="text-secondary mb-3">Tutor: @clase.Tutor.Nombre</p>
+                        <div class="mt-auto">
+                            @if (clase.EsSolidaria)
+                            {
+                                <p class="precio-clase precio-solidario">GRATUITO</p>
+                            }
+                            else
+                            {
+                                <p class="precio-clase">S/ @clase.PrecioHora.ToString("0.00") <span>por hora</span></p>
+                            }
+                            <a class="btn btn-outline-primary w-100" asp-action="Detalle" asp-route-id="@clase.Id">Ver clase</a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+    <div class="estado-vacio text-center mt-4" data-clases-vacio hidden>
+        <span class="estado-vacio-icono" aria-hidden="true">⌕</span>
+        <h2 class="h3 mt-3">Aún no encontramos clases</h2>
+        <p>Prueba cambiar los filtros o vuelve más tarde.</p>
+        <a class="btn btn-outline-primary" asp-action="Index">Ver todas las clases</a>
+    </div>
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/clases.css" asp-append-version="true" />
+}
+@section Scripts {
+    <script src="~/js/clases.js" asp-append-version="true"></script>
+}

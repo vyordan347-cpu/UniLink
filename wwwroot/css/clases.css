@@ -1,0 +1,153 @@
+.clases-encabezado,
+.solidario-encabezado {
+  padding: var(--ul-espacio-5) 0 var(--ul-espacio-4);
+  background: var(--ul-superficie);
+}
+
+.clases-encabezado h1,
+.solidario-encabezado h1 {
+  color: var(--ul-primario);
+}
+
+.solidario-encabezado h1 {
+  font-size: 40px;
+}
+
+.solidario-encabezado .lead {
+  color: var(--ul-texto-suave);
+  font-size: 18px;
+}
+
+.explorar-tabs {
+  display: flex;
+  gap: var(--ul-espacio-1);
+  border-bottom: 1px solid var(--ul-borde);
+}
+
+.explorar-tabs a {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px var(--ul-espacio-2);
+  border-bottom: 3px solid transparent;
+  color: var(--ul-texto-suave);
+  font-weight: 650;
+}
+
+.explorar-tabs a.active {
+  border-bottom-color: var(--ul-primario);
+  color: var(--ul-primario);
+}
+
+.explorar-tabs a:hover {
+  text-decoration: none;
+}
+
+.tarjeta-clase,
+.detalle-clase,
+.reserva-clase {
+  border: 1px solid var(--ul-borde);
+  border-radius: var(--ul-radio-tarjeta);
+  background: var(--ul-superficie);
+  box-shadow: var(--ul-sombra-sutil);
+}
+
+.tarjeta-clase {
+  transition: box-shadow 160ms ease;
+}
+
+.tarjeta-clase:hover {
+  box-shadow: var(--ul-sombra-tarjeta);
+}
+
+.tarjeta-clase .card-body {
+  padding: var(--ul-espacio-3);
+}
+
+.badge-modalidad {
+  border: 1px solid var(--ul-borde);
+  border-radius: var(--ul-radio-badge);
+  color: var(--ul-texto);
+  background: var(--ul-fondo);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 7px 12px;
+}
+
+.badge-solidario {
+  border-radius: var(--ul-radio-badge);
+  color: var(--ul-solidario);
+  background: var(--ul-tinte-solidario);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 7px 12px;
+}
+
+.precio-clase {
+  margin-bottom: var(--ul-espacio-2);
+  color: var(--ul-texto);
+  font-size: 20px;
+  font-weight: 750;
+}
+
+.precio-clase span {
+  color: var(--ul-texto-suave);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.precio-solidario {
+  color: var(--ul-solidario);
+}
+
+.detalle-descripcion {
+  max-width: 760px;
+  white-space: pre-line;
+}
+
+.formulario-clase {
+  max-width: 640px;
+}
+
+.formulario-clase .card-body {
+  padding: var(--ul-espacio-3);
+}
+
+.formulario-encabezado {
+  max-width: 640px;
+}
+
+.precio-total-clase {
+  margin: var(--ul-espacio-2) 0;
+  color: var(--ul-primario);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.reserva-clase .card-body {
+  padding: var(--ul-espacio-3);
+}
+
+.reserva-clase form {
+  width: 100%;
+}
+
+.reserva-clase .form-control {
+  min-width: 220px;
+}
+
+.confirmacion-clase {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+@media (max-width: 767.98px) {
+  .clases-encabezado,
+  .solidario-encabezado {
+    padding: var(--ul-espacio-4) 0 var(--ul-espacio-3);
+  }
+
+  .solidario-encabezado h1 {
+    font-size: 30px;
+  }
+}

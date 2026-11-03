@@ -43,7 +43,6 @@ public class MaterialViewModel
     [Display(Name = "URL de imagen (opcional)")]
     public string? ImagenUrl { get; set; }
 
-    [Range(0, 99999999.99, ErrorMessage = "El precio por día debe ser de 0 a 99 999 999,99 soles.")]
     [Display(Name = "Precio por día (S/)")]
     public decimal PrecioDia { get; set; }
 

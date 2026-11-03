@@ -1,0 +1,61 @@
+@model SolidarioViewModel
+
+@{
+    ViewData["Title"] = "UniLink Solidario";
+}
+
+<section class="solidario-encabezado">
+    <div class="container">
+        <p class="eyebrow mb-2">Una comunidad que se acompaña</p>
+        <h1>UniLink Solidario ❤️</h1>
+        <p class="lead mb-0">Comparte lo que tienes. Ayuda a otro estudiante.</p>
+    </div>
+</section>
+
+<section class="container py-4 py-lg-5">
+    <h2 class="h2 mb-4">Materiales gratuitos</h2>
+    @if (Model.Materiales.Count == 0)
+    {
+        <p class="text-secondary mb-5">Todavía no hay materiales solidarios publicados.</p>
+    }
+    else
+    {
+        <partial name="~/Views/Materiales/_Tarjetas.cshtml" model="Model.Materiales" />
+    }
+
+    <h2 class="h2 mt-5 mb-4">Clases gratuitas</h2>
+    @if (Model.Clases.Count == 0)
+    {
+        <p class="text-secondary">Todavía no hay clases solidarias publicadas.</p>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4">
+            @foreach (var clase in Model.Clases)
+            {
+                <div class="col">
+                    <article class="card tarjeta-clase h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex gap-2 mb-3">
+                                <span class="badge badge-solidario">GRATUITO</span>
+                                <span class="badge badge-modalidad">@ModalidadClaseHelper.ObtenerEtiqueta(clase.Modalidad)</span>
+                            </div>
+                            <p class="small text-primary fw-semibold mb-1">@clase.Tutor.Carrera</p>
+                            <h3 class="h3">@clase.Curso</h3>
+                            <p class="text-secondary">Tutor: @clase.Tutor.Nombre</p>
+                            <div class="mt-auto">
+                                <p class="precio-clase precio-solidario">GRATUITO</p>
+                                <a class="btn btn-outline-primary w-100" asp-controller="Clases" asp-action="Detalle" asp-route-id="@clase.Id">Ver clase</a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+    }
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/clases.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/materiales.css" asp-append-version="true" />
+}

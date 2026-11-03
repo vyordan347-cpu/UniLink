@@ -265,11 +265,6 @@ namespace UniLink.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<string>("EnlaceReunion")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
                     b.Property<bool>("EsSolidaria")
                         .HasColumnType("boolean");
 
@@ -399,6 +394,16 @@ namespace UniLink.Migrations
 
                     b.Property<int>("ClaseId")
                         .HasColumnType("integer");
+
+                    b.Property<decimal>("CostoTotal")
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<int>("DuracionHoras")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EnlaceReunion")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<int>("Estado")
                         .HasColumnType("integer");
