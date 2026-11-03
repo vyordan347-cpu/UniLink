@@ -147,10 +147,11 @@ public class MaterialesController(
         if (modelo.EsSolidario)
         {
             modelo.PrecioDia = 0;
+            ModelState.Remove(nameof(modelo.PrecioDia));
         }
-        else if (modelo.PrecioDia == 0)
+        else if (modelo.PrecioDia <= 0 || modelo.PrecioDia > 99999999.99m)
         {
-            ModelState.AddModelError(nameof(modelo.PrecioDia), "Marca la opción de préstamo solidario para ofrecerlo gratis.");
+            ModelState.AddModelError(nameof(modelo.PrecioDia), "El precio por día debe ser mayor que 0 y no superar 99 999 999,99 soles.");
         }
 
         if (!await db.Categorias.AnyAsync(categoria => categoria.Id == modelo.CategoriaId, cancellationToken))
@@ -240,10 +241,11 @@ public class MaterialesController(
         if (modelo.EsSolidario)
         {
             modelo.PrecioDia = 0;
+            ModelState.Remove(nameof(modelo.PrecioDia));
         }
-        else if (modelo.PrecioDia == 0)
+        else if (modelo.PrecioDia <= 0 || modelo.PrecioDia > 99999999.99m)
         {
-            ModelState.AddModelError(nameof(modelo.PrecioDia), "Marca la opción de préstamo solidario para ofrecerlo gratis.");
+            ModelState.AddModelError(nameof(modelo.PrecioDia), "El precio por día debe ser mayor que 0 y no superar 99 999 999,99 soles.");
         }
 
         if (!await db.Categorias.AnyAsync(categoria => categoria.Id == modelo.CategoriaId, cancellationToken))

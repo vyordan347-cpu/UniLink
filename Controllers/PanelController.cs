@@ -22,14 +22,21 @@ public class PanelController : Controller
 
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
-        ViewData["NombreUsuario"] = HttpContext.Session.GetString("NombreUsuario") ?? User.Identity?.Name;
         var usuarioId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : (int?)null;
+        var nombre = HttpContext.Session.GetString("NombreUsuario") ?? User.Identity?.Name ?? "estudiante";
+        ViewData["NombreUsuario"] = nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "estudiante";
         ViewData["AlquileresActivos"] = usuarioId is null
             ? 0
             : await _db.Alquileres.CountAsync(
                 alquiler => alquiler.SolicitanteId == usuarioId.Value && alquiler.Estado == EstadoSolicitud.Activo,
                 cancellationToken);
-        ViewData["ClasesProximas"] = 0;
+        ViewData["ClasesProximas"] = usuarioId is null
+            ? 0
+            : await _db.ReservasClase.CountAsync(
+                reserva => reserva.FechaHora >= DateTime.UtcNow
+                    && reserva.Estado == EstadoSolicitud.Aprobado
+                    && (reserva.AlumnoId == usuarioId.Value || reserva.Clase.TutorId == usuarioId.Value),
+                cancellationToken);
         ViewData["SolicitudesPendientes"] = usuarioId is null
             ? 0
             : await _db.Alquileres.CountAsync(

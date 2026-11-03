@@ -31,7 +31,6 @@ public class Material
     public string Ubicacion { get; set; } = string.Empty;
 
     [Column(TypeName = "numeric(10,2)")]
-    [Range(0, 99999999.99, ErrorMessage = "El precio por día debe ser de 0 a 99 999 999,99 soles.")]
     public decimal PrecioDia { get; set; }
 
     public bool EsSolidario { get; set; }

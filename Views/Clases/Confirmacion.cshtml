@@ -1,0 +1,15 @@
+@model ReservaClase
+
+@{
+    ViewData["Title"] = "Reserva enviada";
+}
+
+<section class="container py-5">
+    <div class="estado-vacio text-center confirmacion-clase">
+        <span class="estado-vacio-icono" aria-hidden="true">✓</span>
+        <h1 class="h2 mt-3">¡Reserva enviada!</h1>
+        <p>Tu solicitud para <strong>@Model.Clase.Curso</strong> quedó pendiente de aprobación. Te avisaremos cuando el tutor responda.</p>
+        <p class="mb-4">Duración: @Model.DuracionHoras @(Model.DuracionHoras == 1 ? "hora" : "horas") · Costo: S/ @Model.CostoTotal.ToString("0.00")</p>
+        <a class="btn btn-action" asp-action="Mias" asp-route-pestaña="alumno">Ver mis clases</a>
+    </div>
+</section>

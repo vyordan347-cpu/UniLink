@@ -1,0 +1,94 @@
+@model MisClasesViewModel
+
+@{
+    ViewData["Title"] = "Mis clases";
+    var ahoraUtc = DateTime.UtcNow;
+    var comoAlumno = Model.Pestaña == "alumno";
+    var reservas = comoAlumno ? Model.ReservasComoAlumno : Model.ReservasComoTutor;
+    var proximas = reservas.Where(reserva =>
+        reserva.FechaHora >= ahoraUtc
+        && reserva.Estado != EstadoSolicitud.Devuelto
+        && reserva.Estado != EstadoSolicitud.Rechazado).ToList();
+    var historial = reservas.Except(proximas).OrderByDescending(reserva => reserva.FechaHora).ToList();
+}
+
+<section class="container py-4 py-lg-5">
+    <p class="eyebrow mb-2">Tu actividad de aprendizaje</p>
+    <h1 class="mb-4">Mis clases</h1>
+    <nav class="explorar-tabs mb-4" aria-label="Mis clases">
+        <a class="@(comoAlumno ? "active" : "")" aria-current="@(comoAlumno ? "page" : null)"
+           asp-action="Mias" asp-route-pestaña="alumno">Como alumno</a>
+        <a class="@(!comoAlumno ? "active" : "")" aria-current="@(!comoAlumno ? "page" : null)"
+           asp-action="Mias" asp-route-pestaña="tutor">Como tutor</a>
+    </nav>
+
+    @if (!comoAlumno)
+    {
+        <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+            <h2 class="h2 mb-0">Mis clases ofrecidas</h2>
+            <a class="btn btn-action" asp-action="Ofrecer">Ofrecer clase</a>
+        </div>
+        @if (Model.ClasesComoTutor.Count == 0)
+        {
+            <p class="text-secondary">Aún no has ofrecido clases.</p>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 mb-5">
+                @foreach (var clase in Model.ClasesComoTutor)
+                {
+                    <div class="col">
+                        <article class="card tarjeta-clase h-100">
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge badge-modalidad align-self-start mb-3">
+                                    @ModalidadClaseHelper.ObtenerEtiqueta(clase.Modalidad)
+                                </span>
+                                <h3 class="h3">@clase.Curso</h3>
+                                <p class="text-secondary">@(clase.EsSolidaria ? "Clase gratuita" : $"S/ {clase.PrecioHora:0.00} por hora")</p>
+                                <a class="btn btn-outline-primary mt-auto" asp-action="Detalle" asp-route-id="@clase.Id">Administrar clase</a>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        }
+    }
+
+    <h2 class="h2 mb-3">@(comoAlumno ? "Próximas" : "Reservas próximas")</h2>
+    @if (proximas.Count == 0)
+    {
+        <div class="estado-vacio text-center mb-5">
+            <span class="estado-vacio-icono" aria-hidden="true">⌕</span>
+            <h3 class="mt-3">No tienes clases próximas</h3>
+            <p>@(comoAlumno ? "Explora las clases disponibles y encuentra una que te ayude." : "Cuando alguien reserve una clase, la verás aquí.")</p>
+            @if (comoAlumno)
+            {
+                <a class="btn btn-outline-primary" asp-action="Index">Explorar clases</a>
+            }
+        </div>
+    }
+    else
+    {
+        @foreach (var reserva in proximas)
+        {
+            <partial name="_Reserva" model="(reserva, comoAlumno)" />
+        }
+    }
+
+    <h2 class="h2 mt-5 mb-3">@(comoAlumno ? "Historial" : "Historial de reservas")</h2>
+    @if (historial.Count == 0)
+    {
+        <p class="text-secondary">Aquí verás las clases pasadas y las reservas finalizadas.</p>
+    }
+    else
+    {
+        @foreach (var reserva in historial)
+        {
+            <partial name="_Reserva" model="(reserva, comoAlumno)" />
+        }
+    }
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/clases.css" asp-append-version="true" />
+}
