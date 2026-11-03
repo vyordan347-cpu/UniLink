@@ -1,10 +1,29 @@
 ﻿<!DOCTYPE html>
+@{
+    var controladorActual = ViewContext.RouteData.Values["controller"]?.ToString();
+    var accionActual = ViewContext.RouteData.Values["action"]?.ToString();
+    var soloSolidario = string.Equals(Context.Request.Query["soloGratuitos"], "true", StringComparison.OrdinalIgnoreCase);
+    var estaAutenticado = User.Identity?.IsAuthenticated == true;
+    var explorarActivo = controladorActual == "Materiales"
+        && (accionActual == "Index" || accionActual == "Detalle")
+        && !soloSolidario;
+    var solidarioActivo = controladorActual == "Materiales" && accionActual == "Index" && soloSolidario;
+    var actividadActiva = controladorActual == "Alquileres"
+        || (controladorActual == "Materiales" && accionActual == "Mios");
+    var nombreUsuario = User.Identity?.Name;
+    var inicialUsuario = !string.IsNullOrWhiteSpace(nombreUsuario)
+        ? nombreUsuario[..1].ToUpperInvariant()
+        : "U";
+}
 <html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@(ViewData["Title"] is string title && title != "Inicio" ? $"{title} | UniLink" : "UniLink")</title>
     <script type="importmap"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/UniLink.styles.css" asp-append-version="true" />
@@ -12,46 +31,114 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom site-navbar">
+        <nav class="navbar site-navbar">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">UniLink<span>.</span></a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">UniLink<span>.</span></a>
+                <div class="d-none d-md-flex ms-auto align-items-center gap-1">
+                    <a class="nav-link @(explorarActivo ? "active" : "")"
+                       aria-current="@(explorarActivo ? "page" : null)"
+                       asp-controller="Materiales" asp-action="Index">Explorar</a>
+                    <a class="nav-link @(solidarioActivo ? "active" : "")"
+                       aria-current="@(solidarioActivo ? "page" : null)"
+                       asp-controller="Materiales" asp-action="Index" asp-route-soloGratuitos="true">Solidario</a>
+                    @if (estaAutenticado)
+                    {
+                        <div class="dropdown">
+                            <button class="nav-link dropdown-toggle @(actividadActiva ? "active" : "")" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                Mi actividad
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item @(controladorActual == "Alquileres" && accionActual == "Index" ? "active" : "")"
+                                       asp-controller="Alquileres" asp-action="Index">Mis alquileres</a></li>
+                                <li><a class="dropdown-item @(controladorActual == "Alquileres" && accionActual == "Recibidas" ? "active" : "")"
+                                       asp-controller="Alquileres" asp-action="Recibidas">Solicitudes</a></li>
+                                <li><a class="dropdown-item @(controladorActual == "Materiales" && accionActual == "Mios" ? "active" : "")"
+                                       asp-controller="Materiales" asp-action="Mios">Mis materiales</a></li>
+                            </ul>
+                        </div>
+                        <a class="nav-link nav-publish" asp-controller="Materiales" asp-action="Publicar">Publicar</a>
+                        <div class="dropdown">
+                            <button class="nav-link nav-avatar dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false" aria-label="Abrir menú de usuario">
+                                @inicialUsuario
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item @(controladorActual == "Panel" ? "active" : "")"
+                                       asp-controller="Panel" asp-action="Index">Mi panel</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <form asp-controller="Cuenta" asp-action="Logout" method="post">
+                                        <button type="submit" class="dropdown-item">Cerrar sesión</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <a class="nav-link @(controladorActual == "Cuenta" && accionActual == "Login" ? "active" : "")"
+                           aria-current="@(controladorActual == "Cuenta" && accionActual == "Login" ? "page" : null)"
+                           asp-controller="Cuenta" asp-action="Login">Iniciar sesión</a>
+                        <a class="btn btn-primary ms-1 @(controladorActual == "Cuenta" && accionActual == "Registro" ? "active" : "")"
+                           aria-current="@(controladorActual == "Cuenta" && accionActual == "Registro" ? "page" : null)"
+                           asp-controller="Cuenta" asp-action="Registro">Crear cuenta</a>
+                    }
+                </div>
+                <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#menuMovil" aria-controls="menuMovil" aria-label="Abrir menú">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto align-items-md-center gap-md-2">
-                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Materiales" asp-action="Index">Explorar</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Materiales" asp-action="Index" asp-route-soloGratuitos="true">Solidario</a></li>
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item"><a class="nav-link" asp-controller="Materiales" asp-action="Publicar">Publicar</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Materiales" asp-action="Mios">Mis materiales</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Alquileres" asp-action="Index">Mis alquileres</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Alquileres" asp-action="Recibidas">Solicitudes</a></li>
-                            <li class="nav-item ms-md-2"><a class="nav-link nav-login" asp-controller="Panel" asp-action="Index">Mi panel</a></li>
-                            <li class="nav-item">
-                                <form asp-controller="Cuenta" asp-action="Logout" method="post">
-                                    <button type="submit" class="nav-link border-0 bg-transparent">Cerrar sesión</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item ms-md-2"><a class="nav-link nav-login" asp-controller="Cuenta" asp-action="Login">Iniciar sesión</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="Cuenta" asp-action="Registro">Crear cuenta</a></li>
-                        }
-                    </ul>
-                </div>
             </div>
         </nav>
+        <div class="offcanvas offcanvas-end site-offcanvas d-md-none" tabindex="-1" id="menuMovil" aria-labelledby="menuMovilTitulo">
+            <div class="offcanvas-header">
+                <h2 class="offcanvas-title navbar-brand" id="menuMovilTitulo">UniLink<span>.</span></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar menú"></button>
+            </div>
+            <div class="offcanvas-body">
+                <nav class="mobile-nav-links" aria-label="Navegación principal">
+                    <a class="nav-link @(explorarActivo ? "active" : "")"
+                       aria-current="@(explorarActivo ? "page" : null)"
+                       asp-controller="Materiales" asp-action="Index">Explorar</a>
+                    <a class="nav-link @(solidarioActivo ? "active" : "")"
+                       aria-current="@(solidarioActivo ? "page" : null)"
+                       asp-controller="Materiales" asp-action="Index" asp-route-soloGratuitos="true">Solidario</a>
+                    @if (estaAutenticado)
+                    {
+                        <div class="mobile-nav-group">
+                            <p class="mobile-nav-heading">Mi actividad</p>
+                            <a class="nav-link @(controladorActual == "Alquileres" && accionActual == "Index" ? "active" : "")"
+                               asp-controller="Alquileres" asp-action="Index">Mis alquileres</a>
+                            <a class="nav-link @(controladorActual == "Alquileres" && accionActual == "Recibidas" ? "active" : "")"
+                               asp-controller="Alquileres" asp-action="Recibidas">Solicitudes</a>
+                            <a class="nav-link @(controladorActual == "Materiales" && accionActual == "Mios" ? "active" : "")"
+                               asp-controller="Materiales" asp-action="Mios">Mis materiales</a>
+                        </div>
+                        <a class="nav-link nav-publish" asp-controller="Materiales" asp-action="Publicar">Publicar</a>
+                        <a class="nav-link @(controladorActual == "Panel" ? "active" : "")"
+                           asp-controller="Panel" asp-action="Index">Mi panel</a>
+                        <form asp-controller="Cuenta" asp-action="Logout" method="post">
+                            <button type="submit" class="nav-link w-100 text-start">Cerrar sesión</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="nav-link @(controladorActual == "Cuenta" && accionActual == "Login" ? "active" : "")"
+                           asp-controller="Cuenta" asp-action="Login">Iniciar sesión</a>
+                        <a class="btn btn-primary w-100 @(controladorActual == "Cuenta" && accionActual == "Registro" ? "active" : "")"
+                           aria-current="@(controladorActual == "Cuenta" && accionActual == "Registro" ? "page" : null)"
+                           asp-controller="Cuenta" asp-action="Registro">Crear cuenta</a>
+                    }
+                </nav>
+            </div>
+        </div>
     </header>
     <main role="main">
         @if (TempData["Mensaje"] is string mensaje)
         {
-            <div class="container pt-3">
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <div class="container">
+                <div class="alert alert-success alert-dismissible fade show" role="alert" data-auto-dismiss>
                     @mensaje
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                 </div>
@@ -59,8 +146,8 @@
         }
         @if (TempData["Error"] is string error)
         {
-            <div class="container pt-3">
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="container">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" data-auto-dismiss>
                     @error
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                 </div>
@@ -77,6 +164,11 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        document.querySelectorAll("[data-auto-dismiss]").forEach((alerta) => {
+            window.setTimeout(() => bootstrap.Alert.getOrCreateInstance(alerta).close(), 5000);
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
