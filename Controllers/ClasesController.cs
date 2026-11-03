@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using UniLink.Data;
 using UniLink.Helpers;
 using UniLink.Models;
+using UniLink.Services;
 
 namespace UniLink.Controllers;
 
 public class ClasesController(
-    UniLinkDbContext db) : Controller
+    UniLinkDbContext db,
+    NotificacionService notificacionService) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -304,10 +306,13 @@ public class ClasesController(
             .FirstAsync(cancellationToken);
 
         db.ReservasClase.Add(reserva);
-        db.Notificaciones.Add(CrearNotificacion(
-            clase.TutorId,
-            $"Recibiste una solicitud de {nombreAlumno} para una clase de {clase.Curso}."));
         await db.SaveChangesAsync(cancellationToken);
+        await notificacionService.CrearYEnviarAsync(
+            clase.TutorId,
+            $"Recibiste una solicitud de {nombreAlumno} para una clase de {clase.Curso}.",
+            Url.Action(nameof(Mias), "Clases", new { pestaña = "tutor" })
+                ?? throw new InvalidOperationException("No se pudo generar la URL de las clases del tutor."),
+            cancellationToken);
 
         return RedirectToAction(nameof(Confirmacion), new { id = reserva.Id });
     }
@@ -421,15 +426,25 @@ public class ClasesController(
         foreach (var conflicto in conflictos)
         {
             conflicto.Estado = EstadoSolicitud.Rechazado;
-            db.Notificaciones.Add(CrearNotificacion(
-                conflicto.AlumnoId,
-                $"Tu reserva de {conflicto.Clase.Curso} fue rechazada porque otro alumno reservó esa fecha y hora."));
         }
 
-        db.Notificaciones.Add(CrearNotificacion(
-            reserva.AlumnoId,
-            $"Tu reserva para {reserva.Clase.Curso} fue aprobada."));
         await db.SaveChangesAsync(cancellationToken);
+        var urlReservasAlumno = Url.Action(nameof(Mias), "Clases", new { pestaña = "alumno" })
+            ?? throw new InvalidOperationException("No se pudo generar la URL de las reservas del alumno.");
+        foreach (var conflicto in conflictos)
+        {
+            await notificacionService.CrearYEnviarAsync(
+                conflicto.AlumnoId,
+                $"Tu reserva de {conflicto.Clase.Curso} fue rechazada porque otro alumno reservó esa fecha y hora.",
+                urlReservasAlumno,
+                cancellationToken);
+        }
+
+        await notificacionService.CrearYEnviarAsync(
+            reserva.AlumnoId,
+            $"Tu reserva para {reserva.Clase.Curso} fue aprobada.",
+            urlReservasAlumno,
+            cancellationToken);
 
         TempData["Mensaje"] = "Reserva aprobada. Las otras solicitudes pendientes para esa fecha y hora fueron rechazadas.";
         return RedirectToAction(nameof(Mias), new { pestaña = "tutor" });
@@ -458,10 +473,13 @@ public class ClasesController(
         }
 
         reserva.Estado = EstadoSolicitud.Rechazado;
-        db.Notificaciones.Add(CrearNotificacion(
-            reserva.AlumnoId,
-            $"Tu reserva para {reserva.Clase.Curso} fue rechazada."));
         await db.SaveChangesAsync(cancellationToken);
+        await notificacionService.CrearYEnviarAsync(
+            reserva.AlumnoId,
+            $"Tu reserva para {reserva.Clase.Curso} fue rechazada.",
+            Url.Action(nameof(Mias), "Clases", new { pestaña = "alumno" })
+                ?? throw new InvalidOperationException("No se pudo generar la URL de las reservas del alumno."),
+            cancellationToken);
 
         TempData["Mensaje"] = "Reserva rechazada.";
         return RedirectToAction(nameof(Mias), new { pestaña = "tutor" });
@@ -490,10 +508,13 @@ public class ClasesController(
         }
 
         reserva.Estado = EstadoSolicitud.Devuelto;
-        db.Notificaciones.Add(CrearNotificacion(
-            reserva.AlumnoId,
-            $"La clase de {reserva.Clase.Curso} fue marcada como dictada."));
         await db.SaveChangesAsync(cancellationToken);
+        await notificacionService.CrearYEnviarAsync(
+            reserva.AlumnoId,
+            $"La clase de {reserva.Clase.Curso} fue marcada como dictada.",
+            Url.Action(nameof(Mias), "Clases", new { pestaña = "alumno" })
+                ?? throw new InvalidOperationException("No se pudo generar la URL de las reservas del alumno."),
+            cancellationToken);
 
         TempData["Mensaje"] = "Clase marcada como dictada.";
         return RedirectToAction(nameof(Mias), new { pestaña = "tutor" });
@@ -570,9 +591,6 @@ public class ClasesController(
 
     private bool EsTutor(Clase clase) =>
         ObtenerUsuarioId() is int usuarioId && clase.TutorId == usuarioId;
-
-    private static Notificacion CrearNotificacion(int usuarioId, string mensaje) =>
-        new() { UsuarioId = usuarioId, Mensaje = mensaje };
 
     private static string? NormalizarTexto(string? texto, int maximo)
     {

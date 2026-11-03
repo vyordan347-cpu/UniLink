@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UniLink.Data;
 using UniLink.Models;
+using UniLink.Services;
 
 namespace UniLink.Controllers;
 
 [Authorize]
 public class AlquileresController(
     UniLinkDbContext db,
+    NotificacionService notificacionService,
     ILogger<AlquileresController> logger) : Controller
 {
     [HttpGet]
@@ -150,12 +152,13 @@ public class AlquileresController(
         };
 
         db.Alquileres.Add(alquiler);
-        db.Notificaciones.Add(new Notificacion
-        {
-            UsuarioId = material.PropietarioId,
-            Mensaje = $"Recibiste una solicitud de {nombreSolicitante} para {material.Nombre}."
-        });
         await db.SaveChangesAsync(cancellationToken);
+        await notificacionService.CrearYEnviarAsync(
+            material.PropietarioId,
+            $"Recibiste una solicitud de {nombreSolicitante} para {material.Nombre}.",
+            Url.Action(nameof(Recibidas), "Alquileres")
+                ?? throw new InvalidOperationException("No se pudo generar la URL de solicitudes recibidas."),
+            cancellationToken);
 
         return RedirectToAction(nameof(Confirmacion), new { id = alquiler.Id });
     }
@@ -264,15 +267,25 @@ public class AlquileresController(
         foreach (var conflicto in solicitudesEnConflicto)
         {
             conflicto.Estado = EstadoSolicitud.Rechazado;
-            db.Notificaciones.Add(CrearNotificacion(
-                conflicto.SolicitanteId,
-                $"Tu solicitud de {conflicto.Material.Nombre} fue rechazada porque otro alquiler se aprobó para esas fechas."));
         }
 
-        db.Notificaciones.Add(CrearNotificacion(
-            alquiler.SolicitanteId,
-            $"Tu solicitud de {alquiler.Material.Nombre} fue aprobada."));
         await db.SaveChangesAsync(cancellationToken);
+        var urlAlquileres = Url.Action(nameof(Index), "Alquileres")
+            ?? throw new InvalidOperationException("No se pudo generar la URL de alquileres.");
+        foreach (var conflicto in solicitudesEnConflicto)
+        {
+            await notificacionService.CrearYEnviarAsync(
+                conflicto.SolicitanteId,
+                $"Tu solicitud de {conflicto.Material.Nombre} fue rechazada porque otro alquiler se aprobó para esas fechas.",
+                urlAlquileres,
+                cancellationToken);
+        }
+
+        await notificacionService.CrearYEnviarAsync(
+            alquiler.SolicitanteId,
+            $"Tu solicitud de {alquiler.Material.Nombre} fue aprobada.",
+            urlAlquileres,
+            cancellationToken);
 
         TempData["Mensaje"] = "Solicitud aprobada. Las solicitudes pendientes que se cruzaban fueron rechazadas.";
         return RedirectToAction(nameof(Recibidas));
@@ -300,10 +313,13 @@ public class AlquileresController(
         }
 
         alquiler.Estado = EstadoSolicitud.Rechazado;
-        db.Notificaciones.Add(CrearNotificacion(
-            alquiler.SolicitanteId,
-            $"Tu solicitud de {alquiler.Material.Nombre} fue rechazada."));
         await db.SaveChangesAsync(cancellationToken);
+        await notificacionService.CrearYEnviarAsync(
+            alquiler.SolicitanteId,
+            $"Tu solicitud de {alquiler.Material.Nombre} fue rechazada.",
+            Url.Action(nameof(Index), "Alquileres")
+                ?? throw new InvalidOperationException("No se pudo generar la URL de alquileres."),
+            cancellationToken);
 
         TempData["Mensaje"] = "Solicitud rechazada.";
         return RedirectToAction(nameof(Recibidas));
@@ -332,10 +348,13 @@ public class AlquileresController(
 
         alquiler.Estado = EstadoSolicitud.Activo;
         alquiler.Material.Disponible = false;
-        db.Notificaciones.Add(CrearNotificacion(
-            alquiler.SolicitanteId,
-            $"El material {alquiler.Material.Nombre} fue marcado como entregado."));
         await db.SaveChangesAsync(cancellationToken);
+        await notificacionService.CrearYEnviarAsync(
+            alquiler.SolicitanteId,
+            $"El material {alquiler.Material.Nombre} fue marcado como entregado.",
+            Url.Action(nameof(Index), "Alquileres")
+                ?? throw new InvalidOperationException("No se pudo generar la URL de alquileres."),
+            cancellationToken);
 
         TempData["Mensaje"] = "Alquiler marcado como entregado.";
         return RedirectToAction(nameof(Recibidas));
@@ -364,10 +383,13 @@ public class AlquileresController(
 
         alquiler.Estado = EstadoSolicitud.Devuelto;
         alquiler.Material.Disponible = true;
-        db.Notificaciones.Add(CrearNotificacion(
-            alquiler.SolicitanteId,
-            $"El material {alquiler.Material.Nombre} fue marcado como devuelto."));
         await db.SaveChangesAsync(cancellationToken);
+        await notificacionService.CrearYEnviarAsync(
+            alquiler.SolicitanteId,
+            $"El material {alquiler.Material.Nombre} fue marcado como devuelto.",
+            Url.Action(nameof(Index), "Alquileres")
+                ?? throw new InvalidOperationException("No se pudo generar la URL de alquileres."),
+            cancellationToken);
 
         TempData["Mensaje"] = "Alquiler marcado como devuelto.";
         return RedirectToAction(nameof(Recibidas));
@@ -386,11 +408,4 @@ public class AlquileresController(
 
     private bool EsPropietario(Alquiler alquiler) =>
         ObtenerUsuarioId() is int usuarioId && alquiler.Material.PropietarioId == usuarioId;
-
-    private static Notificacion CrearNotificacion(int usuarioId, string mensaje) =>
-        new()
-        {
-            UsuarioId = usuarioId,
-            Mensaje = mensaje
-        };
 }

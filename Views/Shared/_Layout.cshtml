@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@using UniLink.Data
+@inject UniLinkDbContext Db
+<!DOCTYPE html>
 @{
     var controladorActual = ViewContext.RouteData.Values["controller"]?.ToString();
     var accionActual = ViewContext.RouteData.Values["action"]?.ToString();
@@ -13,6 +17,13 @@
     var inicialUsuario = !string.IsNullOrWhiteSpace(nombreUsuario)
         ? nombreUsuario[..1].ToUpperInvariant()
         : "U";
+    var usuarioId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var idUsuario)
+        ? idUsuario
+        : (int?)null;
+    var notificacionesNoLeidas = estaAutenticado && usuarioId.HasValue
+        ? await Db.Notificaciones.CountAsync(notificacion =>
+            notificacion.UsuarioId == usuarioId.Value && !notificacion.Leida)
+        : 0;
 }
 <html lang="es">
 <head>
@@ -58,6 +69,19 @@
                                        asp-controller="Clases" asp-action="Mias">Mis clases</a></li>
                             </ul>
                         </div>
+                        <a class="nav-link nav-notificaciones @(controladorActual == "Notificaciones" ? "active" : "")"
+                           data-notifications-link
+                           asp-controller="Notificaciones" asp-action="Index"
+                           aria-label="Notificaciones, @notificacionesNoLeidas sin leer"
+                           title="Notificaciones">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+                            </svg>
+                            <span class="notificaciones-contador" data-notifications-count
+                                  hidden="@(notificacionesNoLeidas == 0)">
+                                @(notificacionesNoLeidas > 99 ? "99+" : notificacionesNoLeidas)
+                            </span>
+                        </a>
                         <div class="dropdown">
                             <button class="nav-link nav-publish dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Publicar
@@ -115,6 +139,18 @@
                        asp-controller="Solidario" asp-action="Index">Solidario</a>
                     @if (estaAutenticado)
                     {
+                        <a class="nav-link nav-notificaciones @(controladorActual == "Notificaciones" ? "active" : "")"
+                           data-notifications-link
+                           asp-controller="Notificaciones" asp-action="Index"
+                           aria-label="Notificaciones, @notificacionesNoLeidas sin leer">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+                            </svg>
+                            <span class="notificaciones-contador" data-notifications-count
+                                  hidden="@(notificacionesNoLeidas == 0)">
+                                @(notificacionesNoLeidas > 99 ? "99+" : notificacionesNoLeidas)
+                            </span>
+                        </a>
                         <div class="mobile-nav-group">
                             <p class="mobile-nav-heading">Mi actividad</p>
                             <a class="nav-link @(controladorActual == "Alquileres" && accionActual == "Index" ? "active" : "")"
@@ -178,6 +214,79 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @if (estaAutenticado)
+    {
+        <div class="toast-container position-fixed top-0 end-0 p-3" id="notificacionesToast"
+             aria-live="polite" aria-atomic="false"></div>
+        <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@10.0.0/dist/browser/signalr.min.js"></script>
+        <script>
+            (() => {
+                const contadores = document.querySelectorAll("[data-notifications-count]");
+                const enlacesNotificaciones = document.querySelectorAll("[data-notifications-link]");
+                const contenedorToast = document.getElementById("notificacionesToast");
+
+                const actualizarContador = (cantidad) => {
+                    contadores.forEach((contador) => {
+                        contador.textContent = cantidad > 99 ? "99+" : String(cantidad);
+                        contador.hidden = cantidad < 1;
+                    });
+                    enlacesNotificaciones.forEach((enlace) => {
+                        enlace.setAttribute("aria-label", `Notificaciones, ${cantidad} sin leer`);
+                    });
+                };
+
+                const mostrarToast = (notificacion) => {
+                    const toast = document.createElement("div");
+                    toast.className = "toast notificacion-toast";
+                    toast.setAttribute("role", "status");
+                    toast.setAttribute("aria-live", "polite");
+                    toast.setAttribute("aria-atomic", "true");
+
+                    const encabezado = document.createElement("div");
+                    encabezado.className = "toast-header";
+                    const titulo = document.createElement("strong");
+                    titulo.className = "me-auto";
+                    titulo.textContent = "Nueva notificación";
+                    const cerrar = document.createElement("button");
+                    cerrar.type = "button";
+                    cerrar.className = "btn-close";
+                    cerrar.setAttribute("data-bs-dismiss", "toast");
+                    cerrar.setAttribute("aria-label", "Cerrar");
+                    encabezado.append(titulo, cerrar);
+
+                    const cuerpo = document.createElement("div");
+                    cuerpo.className = "toast-body";
+                    const mensaje = document.createElement("p");
+                    mensaje.className = "mb-2";
+                    mensaje.textContent = notificacion.mensaje;
+                    const enlace = document.createElement("a");
+                    enlace.href = `/Notificaciones/Abrir?id=${encodeURIComponent(notificacion.id)}`;
+                    enlace.textContent = "Ver notificación";
+                    cuerpo.append(mensaje, enlace);
+                    toast.append(encabezado, cuerpo);
+                    contenedorToast.append(toast);
+
+                    const instancia = new bootstrap.Toast(toast, { delay: 8000 });
+                    toast.addEventListener("hidden.bs.toast", () => toast.remove(), { once: true });
+                    instancia.show();
+                };
+
+                const conexion = new signalR.HubConnectionBuilder()
+                    .withUrl("/hubs/notificaciones")
+                    .withAutomaticReconnect()
+                    .build();
+
+                conexion.on("RecibirNotificacion", (notificacion) => {
+                    actualizarContador(
+                        Number(contadores[0]?.textContent.replace("+", "") || 0) + 1);
+                    mostrarToast(notificacion);
+                });
+
+                conexion.start().catch((error) =>
+                    console.error("No se pudo iniciar la conexión de notificaciones.", error));
+            })();
+        </script>
+    }
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         document.querySelectorAll("[data-auto-dismiss]").forEach((alerta) => {

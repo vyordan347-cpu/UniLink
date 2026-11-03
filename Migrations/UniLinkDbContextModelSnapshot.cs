@@ -371,6 +371,10 @@ namespace UniLink.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("Url")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<int>("UsuarioId")
                         .HasColumnType("integer");
 
