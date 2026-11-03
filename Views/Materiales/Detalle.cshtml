@@ -19,7 +19,7 @@
                         {
                             <span class="badge badge-solidario">GRATUITO</span>
                         }
-                        <span class="badge @(Model.Disponible ? "text-bg-success" : "text-bg-secondary")">
+                        <span class="badge estado-badge @(Model.Disponible ? "estado-disponible" : "estado-devuelto")">
                             @(Model.Disponible ? "Disponible" : "Prestado")
                         </span>
                         @if (Model.Esterilizado)
@@ -28,7 +28,7 @@
                         }
                     </div>
                     <p class="eyebrow mb-2">@Model.Categoria.Nombre · @Model.Carrera</p>
-                    <h1 class="h2 fw-bold mb-3">@Model.Nombre</h1>
+                    <h1 class="fw-bold mb-3">@Model.Nombre</h1>
                     @if (Model.EsSolidario)
                     {
                         <p class="precio-material precio-solidario mb-4">Préstamo solidario</p>

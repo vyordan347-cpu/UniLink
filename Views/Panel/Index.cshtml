@@ -5,9 +5,9 @@
 }
 
 <section class="container py-5">
-    <div class="mb-4">
+    <div class="mb-5">
         <p class="text-uppercase small fw-semibold text-primary mb-2">Tu espacio en UniLink</p>
-        <h1 class="h2">Hola, @ViewData["NombreUsuario"] 👋</h1>
+        <h1>Hola, @ViewData["NombreUsuario"] 👋</h1>
     </div>
     <div class="row g-4">
         <div class="col-md-4">
@@ -36,20 +36,27 @@
         </div>
     </div>
     <div class="d-flex flex-wrap gap-2 mt-4">
-        <a class="btn btn-primary" asp-controller="Materiales" asp-action="Index">Explorar materiales</a>
+        <a class="btn btn-outline-primary" asp-controller="Materiales" asp-action="Index">Explorar materiales</a>
         <a class="btn btn-action" asp-controller="Materiales" asp-action="Publicar">Publicar material</a>
         <a class="btn btn-outline-primary" asp-controller="Alquileres" asp-action="Index">Mis alquileres</a>
         <a class="btn btn-outline-secondary" asp-controller="Alquileres" asp-action="Recibidas">Solicitudes recibidas</a>
     </div>
     <div class="mt-5">
-        <h2 class="h5 mb-3">Categorías de materiales</h2>
-        <div class="d-flex flex-wrap gap-2">
-            @foreach (var categoria in Model)
-            {
-                <span class="badge rounded-pill text-bg-light border text-primary px-3 py-2">
-                    @categoria.Nombre
-                </span>
-            }
-        </div>
+        <h2 class="h3 mb-3">Categorías de materiales</h2>
+        @if (Model.Count == 0)
+        {
+            <p class="text-secondary mb-0">Las categorías estarán disponibles cuando se publiquen materiales.</p>
+        }
+        else
+        {
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var categoria in Model)
+                {
+                    <span class="badge rounded-pill text-bg-light border text-primary px-3 py-2">
+                        @categoria.Nombre
+                    </span>
+                }
+            </div>
+        }
     </div>
 </section>

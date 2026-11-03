@@ -4,18 +4,16 @@
     ViewData["Title"] = "Publicar material";
 }
 
-<section class="container py-5">
+<section class="container form-page">
     <div class="row justify-content-center">
-        <div class="col-lg-9 col-xl-8">
+        <div class="col-12">
             <div class="mb-4">
                 <p class="eyebrow mb-2">Comparte con tu comunidad</p>
-                <h1 class="h2 fw-bold">Publicar un material</h1>
+                <h1 class="fw-bold">Publicar un material</h1>
                 <p class="text-secondary">Completa los datos para que otros estudiantes puedan encontrarlo.</p>
             </div>
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-body p-4 p-md-5">
-                    <partial name="_Formulario" model="Model" />
-                </div>
+            <div class="form-card">
+                <partial name="_Formulario" model="Model" />
             </div>
         </div>
     </div>

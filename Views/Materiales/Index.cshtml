@@ -9,12 +9,12 @@
         <p class="eyebrow mb-2">Comparte, encuentra y aprende</p>
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3">
             <div>
-                <h1 class="display-6 fw-bold mb-2">Explora materiales</h1>
+                <h1 class="mb-2">Explora materiales</h1>
                 <p class="text-secondary mb-0">Encuentra materiales académicos ofrecidos por estudiantes USMP.</p>
             </div>
             @if (User.Identity?.IsAuthenticated == true)
             {
-                <a class="btn btn-action" asp-action="Publicar">Publicar un material</a>
+                <a class="btn btn-outline-primary" asp-action="Publicar">Publicar un material</a>
             }
         </div>
     </div>
@@ -64,10 +64,11 @@
 
     @if (Model.Materiales.Count == 0)
     {
-        <div class="estado-vacio text-center rounded-4 p-5">
+        <div class="estado-vacio text-center">
             <span class="estado-vacio-icono" aria-hidden="true">⌕</span>
             <h2 class="h4 mt-3">Aún no encontramos materiales</h2>
-            <p class="text-secondary mb-0">Prueba cambiar los filtros o vuelve más tarde. Siempre hay algo nuevo en la comunidad.</p>
+            <p>Prueba cambiar los filtros o vuelve más tarde. Siempre hay algo nuevo en la comunidad.</p>
+            <a class="btn btn-outline-primary" asp-action="Index" asp-route-limpiarFiltros="true">Ver todos los materiales</a>
         </div>
     }
     else

@@ -7,13 +7,15 @@
 <section class="container py-4 py-lg-5">
     <div class="mb-4">
         <p class="eyebrow mb-2">Como propietario</p>
-        <h1 class="h2 fw-bold">Solicitudes recibidas</h1>
+        <h1 class="fw-bold">Solicitudes recibidas</h1>
     </div>
     @if (Model.Count == 0)
     {
-        <div class="estado-vacio text-center rounded-4 p-5">
+        <div class="estado-vacio text-center">
+            <span class="estado-vacio-icono" aria-hidden="true">✓</span>
             <h2 class="h4">No tienes solicitudes todavía</h2>
-            <p class="text-secondary mb-0">Cuando alguien solicite uno de tus materiales, aparecerá aquí.</p>
+            <p>Cuando alguien solicite uno de tus materiales, aparecerá aquí.</p>
+            <a class="btn btn-outline-primary" asp-controller="Materiales" asp-action="Mios">Ver mis materiales</a>
         </div>
     }
     else
@@ -37,7 +39,7 @@
                                 <div class="d-flex flex-wrap gap-2">
                                     <form asp-action="Aprobar" method="post">
                                         <input type="hidden" name="id" value="@alquiler.Id" />
-                                        <button type="submit" class="btn btn-sm btn-success">Aprobar</button>
+                                        <button type="submit" class="btn btn-sm btn-action">Aprobar</button>
                                     </form>
                                     <form asp-action="Rechazar" method="post">
                                         <input type="hidden" name="id" value="@alquiler.Id" />
@@ -56,7 +58,7 @@
                             {
                                 <form asp-action="MarcarDevuelto" method="post">
                                     <input type="hidden" name="id" value="@alquiler.Id" />
-                                    <button type="submit" class="btn btn-sm btn-outline-primary">Marcar como devuelto</button>
+                                    <button type="submit" class="btn btn-sm btn-action">Marcar como devuelto</button>
                                 </form>
                             }
                         </div>

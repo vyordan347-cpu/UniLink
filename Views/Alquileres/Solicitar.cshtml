@@ -13,7 +13,7 @@
                 <img class="detalle-imagen w-100" src="@(material.ImagenUrl ?? "/img/material-default.svg")" alt="@material.Nombre" />
                 <div class="card-body p-4">
                     <p class="eyebrow mb-2">@material.Categoria.Nombre · @material.Carrera</p>
-                    <h1 class="h3 fw-bold">@material.Nombre</h1>
+                    <h1 class="fw-bold">@material.Nombre</h1>
                     <p class="text-secondary">@material.Descripcion</p>
                     <p class="mb-1"><strong>Lugar de entrega:</strong> @material.Ubicacion</p>
                     <p class="mb-0">
@@ -30,7 +30,7 @@
             </article>
         </div>
         <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-4">
+            <div class="card solicitud-form-card">
                 <div class="card-body p-4 p-md-5">
                     <h2 class="h4 fw-bold mb-4">Elige las fechas de tu préstamo</h2>
                     <form asp-action="Solicitar" method="post" id="formularioSolicitud">

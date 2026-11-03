@@ -12,7 +12,7 @@
                         {
                             <span class="badge badge-solidario">GRATUITO</span>
                         }
-                        <span class="badge @(material.Disponible ? "text-bg-success" : "text-bg-secondary")">
+                        <span class="badge estado-badge @(material.Disponible ? "estado-disponible" : "estado-devuelto")">
                             @(material.Disponible ? "Disponible" : "Prestado")
                         </span>
                     </div>
@@ -32,7 +32,7 @@
                             <a class="btn btn-outline-primary flex-grow-1" asp-action="Detalle" asp-route-id="@material.Id">Ver detalle</a>
                             @if (ViewData["MostrarAccionesPropietario"] is true)
                             {
-                                <a class="btn btn-primary" asp-action="Editar" asp-route-id="@material.Id">Editar</a>
+                                <a class="btn btn-outline-primary" asp-action="Editar" asp-route-id="@material.Id">Editar</a>
                                 <button type="button" class="btn btn-outline-danger"
                                         data-bs-toggle="modal" data-bs-target="#modalEliminarMaterial"
                                         data-material-id="@material.Id" data-material-nombre="@material.Nombre">
