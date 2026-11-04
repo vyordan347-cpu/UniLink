@@ -78,7 +78,9 @@
     else
     {
         <p class="text-secondary mb-3">@Model.Materiales.Count @(Model.Materiales.Count == 1 ? "material encontrado" : "materiales encontrados")</p>
-        <partial name="_Tarjetas" model="Model.Materiales" />
+        <div data-explorar-tarjetas>
+            <partial name="_Tarjetas" model="Model.Materiales" />
+        </div>
     }
 </section>
 

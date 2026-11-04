@@ -27,3 +27,7 @@ Usa la skill diseno-unilink, en especial la sección "Estilo glass (v2)". Estamo
 - `dotnet build`: correcto, 0 advertencias y 0 errores.
 - Se calcularon contrastes de texto en las superficies glass; el mínimo verificado es 4.61:1. El botón turquesa con texto índigo alcanza 6.32:1.
 - No fue posible inspeccionar el renderizado en el navegador: la aplicación no inicia sin la cadena `DefaultConnection` configurada. No se consultaron ni alteraron secretos o configuración.
+
+## Prompt adicional: Scroll suave (Lenis)
+
+Usa la skill diseno-unilink, sección "Scroll suave (Lenis)". Estamos en la rama feature/rediseno-glass. Integra Lenis para scroll suave en todo el sitio, sincronizado con GSAP y ScrollTrigger en wwwroot/js/animaciones.js. Asegura que: el chat del asistente, los modales, los dropdowns y el menú offcanvas sigan haciendo scroll normal (data-lenis-prevent); los enlaces de anclas usen lenis.scrollTo; con prefers-reduced-motion Lenis no se active. Verifica que las animaciones de ScrollTrigger sigan funcionando. Ejecuta dotnet build. Agrega este prompt al final de docs/prompts/16-rediseno-glass.md. No ejecutes git.

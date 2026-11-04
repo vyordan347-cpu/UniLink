@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Mi panel";
+    var alquileresActivos = ViewData["AlquileresActivos"];
+    var clasesProximas = ViewData["ClasesProximas"];
+    var solicitudesPendientes = ViewData["SolicitudesPendientes"];
 }
 
 <section class="ul-panel-resumen">
@@ -15,7 +18,7 @@
             <article class="card ul-glass ul-panel-stat h-100 rounded-4">
                 <div class="card-body p-4">
                     <p class="mb-2">Alquileres activos</p>
-                    <p class="display-5 fw-semibold mb-0">@ViewData["AlquileresActivos"]</p>
+                    <p class="display-5 fw-semibold mb-0" data-animar-contador="@alquileresActivos">@alquileresActivos</p>
                 </div>
             </article>
         </div>
@@ -23,7 +26,7 @@
             <article class="card ul-glass ul-panel-stat h-100 rounded-4">
                 <div class="card-body p-4">
                     <p class="mb-2">Clases próximas</p>
-                    <p class="display-5 fw-semibold mb-0">@ViewData["ClasesProximas"]</p>
+                    <p class="display-5 fw-semibold mb-0" data-animar-contador="@clasesProximas">@clasesProximas</p>
                 </div>
             </article>
         </div>
@@ -31,7 +34,7 @@
             <article class="card ul-glass ul-panel-stat h-100 rounded-4">
                 <div class="card-body p-4">
                     <p class="mb-2">Solicitudes pendientes</p>
-                    <p class="display-5 fw-semibold mb-0">@ViewData["SolicitudesPendientes"]</p>
+                    <p class="display-5 fw-semibold mb-0" data-animar-contador="@solicitudesPendientes">@solicitudesPendientes</p>
                 </div>
             </article>
         </div>
@@ -49,7 +52,7 @@
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Publicar
             </button>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu" data-lenis-prevent>
                 <li><a class="dropdown-item" asp-controller="Materiales" asp-action="Publicar">Publicar material</a></li>
                 <li><a class="dropdown-item" asp-controller="Clases" asp-action="Ofrecer">Ofrecer clase</a></li>
             </ul>
@@ -104,7 +107,16 @@
                                     {
                                         <p class="precio-material mb-3">S/ @recomendacion.Precio.ToString("0.00") <span>@recomendacion.UnidadPrecio</span></p>
                                     }
-                                    <a class="btn btn-outline-primary w-100" href="@recomendacion.UrlDetalle">Ver detalle</a>
+                                    @if (recomendacion.Tipo == "Material")
+                                    {
+                                        <a class="btn btn-outline-primary w-100"
+                                           asp-controller="Materiales" asp-action="Detalle" asp-route-id="@recomendacion.Id">Ver detalle</a>
+                                    }
+                                    else if (recomendacion.Tipo == "Clase")
+                                    {
+                                        <a class="btn btn-outline-primary w-100"
+                                           asp-controller="Clases" asp-action="Detalle" asp-route-id="@recomendacion.Id">Ver detalle</a>
+                                    }
                                 </div>
                             </div>
                         </article>
