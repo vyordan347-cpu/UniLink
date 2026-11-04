@@ -56,7 +56,7 @@
     <link rel="stylesheet" href="~/UniLink.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
+<body class="@(controladorActual == "Cuenta" && accionActual is "Login" or "Registro" ? "ul-auth-layout" : "")">
     <header>
         <nav class="navbar site-navbar">
             <div class="container">
@@ -229,7 +229,7 @@
         <div class="ul-asistente" data-asistente>
             <section id="ul-chat-panel" class="ul-chat-panel" data-asistente-panel
                      aria-label="Conversación con el Asistente UniLink" hidden>
-                <header class="ul-chat-encabezado">
+                <header class="ul-chat-encabezado ul-glass">
                     <div>
                         <h3>Asistente UniLink <span aria-hidden="true">✨</span></h3>
                         <p>Materiales y clases para tu vida universitaria</p>
@@ -267,7 +267,7 @@
 
     <footer class="site-footer">
         <div class="container">
-            <span>UniLink</span> · Comunidad USMP · Conecta, comparte y aprende
+            <span>UniLink</span> · Comunidad USMP · Conecta, comparte y aprende · Fotos: campus USMP
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
