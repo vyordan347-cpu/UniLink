@@ -48,6 +48,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     @if (estaAutenticado)
     {
@@ -75,7 +76,7 @@
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                 Mi actividad
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end" data-lenis-prevent>
                                 <li><a class="dropdown-item @(controladorActual == "Alquileres" && accionActual == "Index" ? "active" : "")"
                                        asp-controller="Alquileres" asp-action="Index">Mis alquileres</a></li>
                                 <li><a class="dropdown-item @(controladorActual == "Alquileres" && accionActual == "Recibidas" ? "active" : "")"
@@ -103,7 +104,7 @@
                             <button class="nav-link nav-publish dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Publicar
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end" data-lenis-prevent>
                                 <li><a class="dropdown-item" asp-controller="Materiales" asp-action="Publicar">Publicar material</a></li>
                                 <li><a class="dropdown-item" asp-controller="Clases" asp-action="Ofrecer">Ofrecer clase</a></li>
                             </ul>
@@ -113,7 +114,7 @@
                                     aria-expanded="false" aria-label="Abrir menú de usuario">
                                 <span class="nav-avatar-inicial">@inicialUsuario</span>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end" data-lenis-prevent>
                                 <li><a class="dropdown-item @(controladorActual == "Panel" ? "active" : "")"
                                        asp-controller="Panel" asp-action="Index">Mi panel</a></li>
                                 <li><hr class="dropdown-divider" /></li>
@@ -141,12 +142,12 @@
                 </button>
             </div>
         </nav>
-        <div class="offcanvas offcanvas-end site-offcanvas d-md-none" tabindex="-1" id="menuMovil" aria-labelledby="menuMovilTitulo">
+        <div class="offcanvas offcanvas-end site-offcanvas d-md-none" tabindex="-1" id="menuMovil" aria-labelledby="menuMovilTitulo" data-lenis-prevent>
             <div class="offcanvas-header">
                 <h2 class="offcanvas-title navbar-brand" id="menuMovilTitulo">UniLink<span>.</span></h2>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar menú"></button>
             </div>
-            <div class="offcanvas-body">
+            <div class="offcanvas-body" data-lenis-prevent>
                 <nav class="mobile-nav-links" aria-label="Navegación principal">
                     <a class="nav-link @(explorarActivo ? "active" : "")"
                        aria-current="@(explorarActivo ? "page" : null)"
@@ -202,7 +203,7 @@
             </div>
         </div>
     </header>
-    <main role="main">
+    <main role="main" class="flex-grow-1">
         @if (TempData["Mensaje"] is string mensaje)
         {
             <div class="container">
@@ -227,7 +228,7 @@
     @if (estaAutenticado)
     {
         <div class="ul-asistente" data-asistente>
-            <section id="ul-chat-panel" class="ul-chat-panel" data-asistente-panel
+            <section id="ul-chat-panel" class="ul-chat-panel" data-asistente-panel data-lenis-prevent
                      aria-label="Conversación con el Asistente UniLink" hidden>
                 <header class="ul-chat-encabezado ul-glass">
                     <div>
@@ -240,7 +241,7 @@
                         <button class="ul-chat-icono" type="button" data-asistente-cerrar aria-label="Cerrar chat">×</button>
                     </div>
                 </header>
-                <div class="ul-chat-mensajes" data-asistente-mensajes aria-live="polite" aria-relevant="additions">
+                <div class="ul-chat-mensajes" data-asistente-mensajes data-lenis-prevent aria-live="polite" aria-relevant="additions">
                     <div class="ul-chat-mensaje asistente">
                         <div class="ul-chat-burbuja">¡Hola! Puedo ayudarte a encontrar materiales, clases y recomendaciones de UniLink.</div>
                     </div>
@@ -267,11 +268,15 @@
 
     <footer class="site-footer">
         <div class="container">
-            <span>UniLink</span> · Comunidad USMP · Conecta, comparte y aprende · Fotos: campus USMP
+            <span>UniLink</span> · Comunidad USMP · Conecta, comparte y aprende
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+    <script src="~/js/animaciones.js" asp-append-version="true"></script>
     @if (estaAutenticado)
     {
         <div class="toast-container position-fixed top-0 end-0 p-3" id="notificacionesToast"

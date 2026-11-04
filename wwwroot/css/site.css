@@ -48,10 +48,12 @@
 html {
   min-width: 320px;
   min-height: 100%;
-  scroll-behavior: smooth;
 }
 
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   margin: 0;
   color: var(--ul-texto);
   background: var(--ul-fondo);
@@ -1372,10 +1374,6 @@ textarea.form-control {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
   *,
   *::before,
   *::after {

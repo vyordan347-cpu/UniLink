@@ -59,7 +59,7 @@
     <p class="text-secondary mb-3" data-clases-conteo aria-live="polite">
         @Model.Clases.Count @(Model.Clases.Count == 1 ? "clase encontrada" : "clases encontradas")
     </p>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4" data-clases-lista>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4" data-clases-lista data-explorar-tarjetas>
         @foreach (var clase in Model.Clases)
         {
             <div class="col">

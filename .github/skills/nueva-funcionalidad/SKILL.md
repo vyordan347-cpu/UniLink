@@ -1,9 +1,9 @@
 ---
 name: nueva-funcionalidad
 description: "Diseña e implementa una funcionalidad nueva en UniLink siguiendo AGENTS.md, las skills aplicables y las convenciones del proyecto; registra el prompt en docs/prompts."
+disable-model-invocation: true
 argument-hint: "Describe la funcionalidad, sus criterios de aceptación y cualquier limitación."
 ---
-
 Implementa la siguiente funcionalidad en UniLink:
 
 ${input:funcionalidad:Describe la funcionalidad y sus criterios de aceptación}

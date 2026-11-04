@@ -54,3 +54,19 @@ Usar SOLO en: login, registro, hero de la landing, barra de navegación, tarjeta
 - Fallback: si el navegador no soporta backdrop-filter, usar un fondo más opaco (rgba(30,34,53,.85)).
 - Respetar prefers-reduced-motion. Sin animaciones exageradas (solo fade-in de 300ms).
 - Créditos de fotos en el pie: "Fotos: campus USMP".
+
+## Animaciones (GSAP)
+- Usar GSAP + ScrollTrigger desde CDN (cdn.jsdelivr.net/npm/gsap), cargados solo en _Layout al final del body.
+- Todo el código de animación va en wwwroot/js/animaciones.js, organizado por funciones (animarHero, animarScroll, animarContadores, etc.) que solo se ejecutan si el elemento existe en la página.
+- Duraciones: 0.4–0.8s; ease "power2.out"; escalonado (stagger) de 0.08s.
+- Envolver todo en gsap.matchMedia(): con "(prefers-reduced-motion: reduce)" no animar (mostrar todo directamente).
+- Nunca ocultar contenido con CSS esperando a GSAP: si el JS falla, el contenido debe verse igual.
+- Prohibido: animaciones en bucle, parallax exagerado y animar cada elemento de la página.
+
+## Scroll suave (Lenis)
+- Lenis desde CDN (cdn.jsdelivr.net/npm/lenis), cargado en _Layout antes de animaciones.js.
+- Integrarlo con GSAP: lenis.on('scroll', ScrollTrigger.update) y gsap.ticker.add para el raf; gsap.ticker.lagSmoothing(0).
+- Duración suave y natural (lerp ~0.1). No exagerar.
+- Desactivar Lenis con prefers-reduced-motion y en dispositivos táctiles si genera problemas.
+- Paneles con scroll propio (chat del asistente, modales, dropdowns, menú offcanvas) deben llevar data-lenis-prevent.
+- Los enlaces de anclas (#seccion) deben usar lenis.scrollTo.
