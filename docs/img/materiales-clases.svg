@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title description">
+  <title id="title">Captura de materiales y clases pendiente</title>
+  <desc id="description">Marcador que debe reemplazarse por capturas de las páginas de materiales y clases.</desc>
+  <rect width="960" height="540" rx="24" fill="#f7f8fc"/>
+  <rect x="32" y="32" width="896" height="476" rx="18" fill="#fff" stroke="#d9deef" stroke-width="2"/>
+  <rect x="32" y="32" width="896" height="68" rx="18" fill="#3b4cca"/>
+  <path d="M32 82h896v18H32z" fill="#3b4cca"/>
+  <circle cx="66" cy="66" r="8" fill="#fff" opacity=".8"/>
+  <circle cx="94" cy="66" r="8" fill="#fff" opacity=".6"/>
+  <circle cx="122" cy="66" r="8" fill="#fff" opacity=".4"/>
+  <text x="480" y="244" text-anchor="middle" fill="#3b4cca" font-family="Arial, sans-serif" font-size="30" font-weight="700">Materiales y clases</text>
+  <text x="480" y="292" text-anchor="middle" fill="#59627a" font-family="Arial, sans-serif" font-size="20">Reemplazar este marcador por capturas en docs/img/</text>
+  <rect x="380" y="342" width="200" height="44" rx="22" fill="#14b8a6" opacity=".85"/>
+  <text x="480" y="371" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="16" font-weight="700">UniLink</text>
+</svg>
