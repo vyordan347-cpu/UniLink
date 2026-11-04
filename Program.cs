@@ -174,11 +174,8 @@ app.MapControllerRoute(
     .WithStaticAssets();
 app.MapHub<NotificacionesHub>("/hubs/notificaciones");
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 using (var scope = app.Services.CreateScope())
 {
