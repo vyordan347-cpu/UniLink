@@ -1,0 +1,23 @@
+@model ErrorViewModel
+
+@{
+    ViewData["Title"] = "Página no encontrada";
+}
+
+<section class="container error-page">
+    <article class="card error-card text-center">
+        <div class="card-body">
+            <p class="eyebrow mb-2">Error 404</p>
+            <h1 class="h2">No encontramos esa página</h1>
+            <p class="text-secondary mb-4">Puede que el enlace haya cambiado o que la página ya no esté disponible.</p>
+            @if (Model.ShowRequestId)
+            {
+                <p class="text-secondary small">Referencia: <code>@Model.RequestId</code></p>
+            }
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+                <a class="btn btn-action" asp-controller="Home" asp-action="Index">Volver al inicio</a>
+                <a class="btn btn-outline-primary" asp-controller="Materiales" asp-action="Index">Explorar materiales</a>
+            </div>
+        </div>
+    </article>
+</section>

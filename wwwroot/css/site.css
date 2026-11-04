@@ -693,6 +693,31 @@ textarea.form-control {
   padding-bottom: var(--ul-espacio-6);
 }
 
+.error-page {
+  display: grid;
+  min-height: 60vh;
+  place-items: center;
+  padding-top: var(--ul-espacio-6);
+  padding-bottom: var(--ul-espacio-6);
+}
+
+.error-card {
+  width: min(100%, 640px);
+}
+
+.error-card .card-body {
+  padding: var(--ul-espacio-5) var(--ul-espacio-4);
+}
+
+.perfil-reputacion {
+  color: var(--ul-texto);
+  font-weight: 650;
+}
+
+.perfil-reputacion span {
+  color: var(--ul-estado-pendiente);
+}
+
 .form-card {
   max-width: 640px;
   margin: 0 auto;
@@ -1274,6 +1299,12 @@ textarea.form-control {
     padding-top: 40px;
     padding-bottom: 40px;
   }
+
+  .error-page {
+    min-height: 50vh;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
 }
 
 @media (max-width: 575.98px) {
@@ -1318,6 +1349,10 @@ textarea.form-control {
   }
 
   .form-card {
+    padding: var(--ul-espacio-3);
+  }
+
+  .error-card .card-body {
     padding: var(--ul-espacio-3);
   }
 

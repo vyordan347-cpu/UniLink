@@ -63,5 +63,18 @@ Dos pilares:
 - Al terminar, resumir qué archivos se crearon o modificaron y cómo probar el resultado.
 - Verificar que el proyecto compile con `dotnet build` antes de terminar.
 
+## Herramientas para agentes
+
+### Skills disponibles
+- `diseno-unilink` (`.github/skills/diseno-unilink/SKILL.md`): aplicar el sistema visual en vistas Razor, CSS, navegación, formularios y tarjetas.
+- `plugin-semantic-kernel` (`.github/skills/plugin-semantic-kernel/SKILL.md`): agregar y probar plugins seguros de solo lectura para el asistente con Semantic Kernel.
+- `migracion-ef` (`.github/skills/migracion-ef/SKILL.md`): crear, revisar y aplicar de forma segura migraciones EF Core con PostgreSQL.
+
+### Agentes personalizados
+- `revisor-unilink` (`.github/agents/revisor-unilink.agent.md`): revisar cambios antes de un PR y reportar hallazgos por gravedad.
+
+### Prompts reutilizables
+- `nueva-funcionalidad` (`.github/prompts/nueva-funcionalidad.prompt.md`): guiar la implementación de una funcionalidad y registrar el prompt y su resumen en `docs/prompts/`.
+
 ## Fases futuras (NO implementar todavía)
 - Chatbot con IA para ayudar a los estudiantes a encontrar materiales y clases.
