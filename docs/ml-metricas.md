@@ -22,5 +22,5 @@ Evaluación sobre una partición de prueba del 20 % (semilla fija: 42).
 - Interacciones sintéticas: 900
 - Interacciones reales (base de datos): 9
 - Total de interacciones: 909
-- RMSE: 0.8349
-- R²: 0.5675
+- RMSE: 0.8350
+- R²: 0.5673
