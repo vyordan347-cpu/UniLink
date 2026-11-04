@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Mi panel";
+    var alquileresActivos = ViewData["AlquileresActivos"];
+    var clasesProximas = ViewData["ClasesProximas"];
+    var solicitudesPendientes = ViewData["SolicitudesPendientes"];
 }
 
 <section class="ul-panel-resumen">
@@ -15,7 +18,7 @@
             <article class="card ul-glass ul-panel-stat h-100 rounded-4">
                 <div class="card-body p-4">
                     <p class="mb-2">Alquileres activos</p>
-                    <p class="display-5 fw-semibold mb-0">@ViewData["AlquileresActivos"]</p>
+                    <p class="display-5 fw-semibold mb-0" data-animar-contador="@alquileresActivos">@alquileresActivos</p>
                 </div>
             </article>
         </div>
@@ -23,7 +26,7 @@
             <article class="card ul-glass ul-panel-stat h-100 rounded-4">
                 <div class="card-body p-4">
                     <p class="mb-2">Clases próximas</p>
-                    <p class="display-5 fw-semibold mb-0">@ViewData["ClasesProximas"]</p>
+                    <p class="display-5 fw-semibold mb-0" data-animar-contador="@clasesProximas">@clasesProximas</p>
                 </div>
             </article>
         </div>
@@ -31,7 +34,7 @@
             <article class="card ul-glass ul-panel-stat h-100 rounded-4">
                 <div class="card-body p-4">
                     <p class="mb-2">Solicitudes pendientes</p>
-                    <p class="display-5 fw-semibold mb-0">@ViewData["SolicitudesPendientes"]</p>
+                    <p class="display-5 fw-semibold mb-0" data-animar-contador="@solicitudesPendientes">@solicitudesPendientes</p>
                 </div>
             </article>
         </div>
