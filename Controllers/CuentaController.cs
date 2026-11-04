@@ -11,7 +11,8 @@ public class CuentaController(
     SignInManager<Usuario> signInManager,
     UniLinkDbContext db) : Controller
 {
-    [HttpGet]
+    [HttpGet("/Perfil/{id:int}")]
+    [HttpGet("/Cuenta/Perfil/{id:int}")]
     public async Task<IActionResult> Perfil(int id, CancellationToken cancellationToken)
     {
         var usuario = await db.Usuarios.AsNoTracking()
@@ -28,8 +29,18 @@ public class CuentaController(
             .Where(resena => resena.UsuarioReseñadoId == id)
             .OrderByDescending(resena => resena.Fecha)
             .ToListAsync(cancellationToken);
+        var materiales = await db.Materiales.AsNoTracking()
+            .Include(material => material.Categoria)
+            .Where(material => material.PropietarioId == id)
+            .OrderByDescending(material => material.FechaPublicacion)
+            .ToListAsync(cancellationToken);
+        var clases = await db.Clases.AsNoTracking()
+            .Where(clase => clase.TutorId == id)
+            .OrderByDescending(clase => clase.FechaPublicacion)
+            .ToListAsync(cancellationToken);
 
         ViewData["Title"] = $"Perfil de {usuario.Nombre}";
+        ViewData["MetaDescription"] = $"Conoce a {usuario.Nombre}, estudiante de {usuario.Carrera}, y descubre sus materiales, clases y reseñas en UniLink.";
         return View(new PerfilViewModel
         {
             Usuario = usuario,
@@ -37,7 +48,11 @@ public class CuentaController(
             {
                 Resenas = resenas,
                 PromedioCalificacion = resenas.Count == 0 ? 0 : resenas.Average(resena => resena.Calificacion)
-            }
+            },
+            Materiales = materiales,
+            Clases = clases,
+            EsEstudianteSolidario = materiales.Any(material => material.EsSolidario || material.PrecioDia == 0)
+                || clases.Any(clase => clase.EsSolidaria || clase.PrecioHora == 0)
         });
     }
 
