@@ -1,7 +1,8 @@
 (() => {
     const gsap = window.gsap;
-    if (!gsap || !window.ScrollTrigger) return;
+    if (!gsap || !window.ScrollTrigger || window.unilinkAnimacionesInicializadas) return;
 
+    window.unilinkAnimacionesInicializadas = true;
     gsap.registerPlugin(window.ScrollTrigger);
 
     let animarEntrada;
@@ -132,6 +133,100 @@
         if (panel && !panel.hidden) animarAperturaAsistente?.(panel);
     };
 
+    const inicializarScrollSuave = () => {
+        if (typeof window.Lenis !== "function" || window.unilinkLenis) return () => {};
+
+        let lenis;
+        let actualizarLenis;
+        let quitarListenerScroll;
+        let desplazarAncla;
+        let instanciaActiva = false;
+        let listenerAnclasActivo = false;
+
+        const detenerLenis = (error) => {
+            if (actualizarLenis) gsap.ticker.remove(actualizarLenis);
+            if (typeof quitarListenerScroll === "function") quitarListenerScroll();
+            if (listenerAnclasActivo) {
+                document.removeEventListener("click", desplazarAncla);
+                listenerAnclasActivo = false;
+            }
+            if (window.unilinkLenis === lenis) window.unilinkLenis = undefined;
+            if (lenis) {
+                try {
+                    lenis.destroy();
+                } catch (errorAlDestruir) {
+                    console.error("No se pudo destruir Lenis.", errorAlDestruir);
+                }
+            }
+            if (instanciaActiva) {
+                gsap.ticker.lagSmoothing(500, 33);
+                instanciaActiva = false;
+            }
+            if (error) {
+                console.error("Lenis se detuvo; se mantiene el scroll nativo.", error);
+            }
+        };
+
+        try {
+            lenis = new window.Lenis({
+                lerp: 0.1,
+                smoothWheel: true
+            });
+
+            desplazarAncla = (evento) => {
+                if (!(evento.target instanceof Element)
+                    || evento.defaultPrevented
+                    || evento.button !== 0
+                    || evento.metaKey
+                    || evento.ctrlKey
+                    || evento.shiftKey
+                    || evento.altKey) return;
+
+                const enlace = evento.target.closest("a[href*='#']");
+                if (!enlace) return;
+
+                const destinoUrl = new URL(enlace.href, window.location.href);
+                if (destinoUrl.origin !== window.location.origin
+                    || destinoUrl.pathname !== window.location.pathname
+                    || destinoUrl.search !== window.location.search
+                    || !destinoUrl.hash) return;
+
+                let objetivo;
+                try {
+                    objetivo = document.getElementById(decodeURIComponent(destinoUrl.hash.slice(1)));
+                } catch {
+                    return;
+                }
+                if (!objetivo) return;
+
+                evento.preventDefault();
+                lenis.scrollTo(objetivo);
+            };
+
+            quitarListenerScroll = lenis.on("scroll", window.ScrollTrigger.update);
+            actualizarLenis = (time) => {
+                try {
+                    lenis.raf(time * 1000);
+                } catch (error) {
+                    detenerLenis(error);
+                }
+            };
+            gsap.ticker.add(actualizarLenis);
+            gsap.ticker.lagSmoothing(0);
+            instanciaActiva = true;
+            document.addEventListener("click", desplazarAncla);
+            listenerAnclasActivo = true;
+            window.unilinkLenis = lenis;
+        } catch (error) {
+            detenerLenis(error);
+            return () => {};
+        }
+
+        return () => {
+            detenerLenis();
+        };
+    };
+
     media.add("(prefers-reduced-motion: reduce)", () => {
         animarEntrada = undefined;
         animarAperturaAsistente = undefined;
@@ -139,6 +234,8 @@
     });
 
     media.add("(prefers-reduced-motion: no-preference)", (contexto) => {
+        const destruirScrollSuave = inicializarScrollSuave();
+
         contexto.add("animarEntrada", (elementos) => {
             const tarjetas = [...(elementos ?? [])].filter((elemento) => elemento instanceof Element);
             if (!tarjetas.length) return;
@@ -187,6 +284,8 @@
         animarContadores();
         animarTarjetasIniciales();
         animarAsistenteInicial();
+
+        return destruirScrollSuave;
     });
 
     window.unilinkAnimaciones = {
