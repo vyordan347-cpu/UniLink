@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.ML;
 using Scalar.AspNetCore;
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 using UniLink.Data;
 using UniLink.Hubs;
 using UniLink.ML;
@@ -51,6 +54,36 @@ builder.Services
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Cuenta/Login";
+    options.Events.OnRedirectToLogin = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api/asistente"))
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return context.Response.WriteAsJsonAsync(new
+            {
+                respuesta = "Tu sesión ya no está activa. Inicia sesión nuevamente.",
+                error = true
+            });
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api/asistente"))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return context.Response.WriteAsJsonAsync(new
+            {
+                respuesta = "No tienes permiso para usar esta función.",
+                error = true
+            });
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
 });
 
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
@@ -76,6 +109,33 @@ else
 
 builder.Services.AddSession();
 builder.Services.AddControllersWithViews();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("asistente-chat", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? context.Connection.RemoteIpAddress?.ToString()
+                ?? "usuario-desconocido",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 20,
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(10)
+            }));
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsJsonAsync(
+            new
+            {
+                respuesta = "Has enviado varios mensajes en poco tiempo. Espera un momento y vuelve a intentarlo.",
+                herramientasUsadas = Array.Empty<string>()
+            },
+            cancellationToken);
+    };
+});
 builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserIdProvider, UsuarioIdProvider>();
@@ -85,6 +145,7 @@ builder.Services.AddSingleton<EntrenadorSentimiento>();
 builder.Services.AddSingleton<ModeloRecomendacion>();
 builder.Services.AddScoped<EntrenadorRecomendacion>();
 builder.Services.AddScoped<RecomendacionService>();
+builder.Services.AddScoped<AsistenteService>();
 builder.Services.AddHostedService<EntrenamientoRecomendacionBackgroundService>();
 var rutaModeloSentimiento = Path.Combine(builder.Environment.ContentRootPath, "ML", "Modelos", "sentimiento.zip");
 builder.Services
@@ -112,6 +173,7 @@ app.UseRouting();
 
 app.UseSession();
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapStaticAssets();
