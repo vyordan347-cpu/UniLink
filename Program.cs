@@ -2,8 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.ML;
+using Scalar.AspNetCore;
 using UniLink.Data;
+using UniLink.Hubs;
+using UniLink.ML;
 using UniLink.Models;
 using UniLink.Services;
 using StackExchange.Redis;
@@ -71,7 +76,20 @@ else
 
 builder.Services.AddSession();
 builder.Services.AddControllersWithViews();
+builder.Services.AddOpenApi();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, UsuarioIdProvider>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<NotificacionService>();
+builder.Services.AddSingleton<EntrenadorSentimiento>();
+builder.Services.AddSingleton<ModeloRecomendacion>();
+builder.Services.AddScoped<EntrenadorRecomendacion>();
+builder.Services.AddScoped<RecomendacionService>();
+builder.Services.AddHostedService<EntrenamientoRecomendacionBackgroundService>();
+var rutaModeloSentimiento = Path.Combine(builder.Environment.ContentRootPath, "ML", "Modelos", "sentimiento.zip");
+builder.Services
+    .AddPredictionEnginePool<DatosSentimiento, PrediccionSentimiento>()
+    .FromFile(rutaModeloSentimiento, watchForChanges: false);
 
 var app = builder.Build();
 
@@ -154,6 +172,13 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+app.MapHub<NotificacionesHub>("/hubs/notificaciones");
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
 
 using (var scope = app.Services.CreateScope())
 {
@@ -167,6 +192,12 @@ using (var scope = app.Services.CreateScope())
         app.Logger.LogError(
             "No se pudieron aplicar las migraciones pendientes. Tipo de error: {TipoError}",
             exception.GetType().Name);
+    }
+
+    var entrenador = scope.ServiceProvider.GetRequiredService<EntrenadorSentimiento>();
+    if (!File.Exists(rutaModeloSentimiento))
+    {
+        entrenador.Entrenar(app.Environment.ContentRootPath);
     }
 }
 

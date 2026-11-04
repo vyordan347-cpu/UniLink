@@ -15,6 +15,7 @@ public class UniLinkDbContext(DbContextOptions<UniLinkDbContext> options)
     public DbSet<Clase> Clases => Set<Clase>();
     public DbSet<ReservaClase> ReservasClase => Set<ReservaClase>();
     public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
+    public DbSet<Resena> Resenas => Set<Resena>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -71,6 +72,50 @@ public class UniLinkDbContext(DbContextOptions<UniLinkDbContext> options)
             .WithMany(usuario => usuario.Notificaciones)
             .HasForeignKey(notificacion => notificacion.UsuarioId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Resena>()
+            .HasOne(resena => resena.Autor)
+            .WithMany(usuario => usuario.ResenasEscritas)
+            .HasForeignKey(resena => resena.AutorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Resena>()
+            .HasOne(resena => resena.UsuarioReseñado)
+            .WithMany(usuario => usuario.ResenasRecibidas)
+            .HasForeignKey(resena => resena.UsuarioReseñadoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Resena>()
+            .HasOne(resena => resena.Material)
+            .WithMany(material => material.Resenas)
+            .HasForeignKey(resena => resena.MaterialId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Resena>()
+            .HasOne(resena => resena.Clase)
+            .WithMany(clase => clase.Resenas)
+            .HasForeignKey(resena => resena.ClaseId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Resena>()
+            .HasOne(resena => resena.Alquiler)
+            .WithOne(alquiler => alquiler.Resena)
+            .HasForeignKey<Resena>(resena => resena.AlquilerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Resena>()
+            .HasOne(resena => resena.ReservaClase)
+            .WithOne(reserva => reserva.Resena)
+            .HasForeignKey<Resena>(resena => resena.ReservaClaseId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Resena>()
+            .HasIndex(resena => resena.AlquilerId)
+            .IsUnique();
+
+        modelBuilder.Entity<Resena>()
+            .HasIndex(resena => resena.ReservaClaseId)
+            .IsUnique();
 
         modelBuilder.Entity<Categoria>().HasData(
             new Categoria { Id = 1, Nombre = "Instrumental odontológico" },

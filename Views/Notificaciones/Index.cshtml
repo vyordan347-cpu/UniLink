@@ -1,0 +1,53 @@
+@model IReadOnlyList<Notificacion>
+
+<section class="section-space">
+    <div class="container">
+        <div class="section-heading d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-3">
+            <div>
+                <p class="eyebrow">Tu actividad en UniLink</p>
+                <h1>Notificaciones</h1>
+                <p class="text-secondary mb-0">Mantente al día con tus alquileres y clases.</p>
+            </div>
+            @if (ViewData["NoLeidas"] is int noLeidas && noLeidas > 0)
+            {
+                <form asp-action="MarcarTodas" method="post">
+                    <button type="submit" class="btn btn-outline-primary">Marcar todas como leídas</button>
+                </form>
+            }
+        </div>
+
+        @if (Model.Count == 0)
+        {
+            <div class="estado-vacio text-center">
+                <span class="estado-vacio-icono" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none"
+                         stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+                    </svg>
+                </span>
+                <h2>Todo al día</h2>
+                <p>Aquí aparecerán las novedades sobre tus solicitudes y reservas.</p>
+                <a class="btn btn-primary" asp-controller="Materiales" asp-action="Index">Explorar materiales</a>
+            </div>
+        }
+        else
+        {
+            <div class="notificaciones-lista">
+                @foreach (var notificacion in Model)
+                {
+                    <a class="notificacion-item @(notificacion.Leida ? "" : "no-leida")"
+                       asp-action="Abrir" asp-route-id="@notificacion.Id">
+                        <span class="notificacion-indicador" aria-hidden="true"></span>
+                        <span class="notificacion-contenido">
+                            <span class="notificacion-mensaje">@notificacion.Mensaje</span>
+                            <time class="notificacion-fecha" datetime="@notificacion.Fecha.ToString("O")">
+                                @notificacion.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                            </time>
+                        </span>
+                        <span class="notificacion-flecha" aria-hidden="true">›</span>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</section>

@@ -28,4 +28,5 @@ public class Clase
     public DateTime FechaPublicacion { get; set; } = DateTime.UtcNow;
 
     public ICollection<ReservaClase> Reservas { get; set; } = new List<ReservaClase>();
+    public ICollection<Resena> Resenas { get; set; } = new List<Resena>();
 }

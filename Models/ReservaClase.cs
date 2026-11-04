@@ -32,4 +32,6 @@ public class ReservaClase
 
     [StringLength(500, ErrorMessage = "El enlace no puede superar los 500 caracteres.")]
     public string? EnlaceReunion { get; set; }
+
+    public Resena? Resena { get; set; }
 }

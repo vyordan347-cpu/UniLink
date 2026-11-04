@@ -25,6 +25,13 @@ else
                             var diasRestantes = Math.Max(0, alquiler.FechaFin.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber);
                             <p class="text-secondary mt-2 mb-0">Faltan @diasRestantes días para devolverlo</p>
                         }
+                        @if (alquiler.Estado == EstadoSolicitud.Devuelto && alquiler.Resena is null)
+                        {
+                            <a class="btn btn-outline-primary mt-3"
+                               asp-controller="Resenas" asp-action="Alquiler" asp-route-id="@alquiler.Id">
+                                Dejar reseña
+                            </a>
+                        }
                     </div>
                     <span class="badge estado-badge estado-@alquiler.Estado.ToString().ToLowerInvariant() align-self-start">@alquiler.Estado</span>
                 </div>
