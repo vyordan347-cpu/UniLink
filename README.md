@@ -19,7 +19,7 @@ Los pagos, si corresponde, se coordinan en persona entre estudiantes. UniLink no
 ## Enlaces
 
 - **Aplicación:** [unilink-usmp.onrender.com](https://unilink-usmp.onrender.com)
-- **Diseño en Figma:** [DEJAR PLACEHOLDER]
+- **Diseño en Figma:** [https://www.figma.com/design/kWUFEZropS5DLQb6V0QyFC/Sin-t%C3%ADtulo?node-id=0-1&t=7XGn0gGSDJ9Hzqnd-1]
 - **Documentación de API:** [`/scalar`](https://unilink-usmp.onrender.com/scalar)
 - **Métricas de ML:** [docs/ml-metricas.md](docs/ml-metricas.md)
 
