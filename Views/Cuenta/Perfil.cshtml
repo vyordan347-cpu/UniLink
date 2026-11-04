@@ -10,7 +10,70 @@
             <p class="eyebrow mb-2">Perfil de estudiante</p>
             <h1 class="h2 mb-2">@Model.Usuario.Nombre</h1>
             <p class="text-secondary mb-0">@Model.Usuario.Carrera</p>
+            @if (Model.EsEstudianteSolidario)
+            {
+                <span class="badge mt-3 badge-solidario">Estudiante Solidario</span>
+            }
+            <div class="perfil-reputacion mt-3" aria-label="Reputación del estudiante">
+                <span aria-hidden="true">★</span>
+                @Model.ResumenResenas.PromedioCalificacion.ToString("0.0") de 5
+                · @Model.ResumenResenas.Resenas.Count reseñas
+            </div>
         </div>
     </article>
+    <section class="mb-5" aria-labelledby="perfil-materiales">
+        <h2 class="h2 mb-3" id="perfil-materiales">Materiales</h2>
+        @if (Model.Materiales.Count == 0)
+        {
+            <p class="text-secondary">Este estudiante aún no tiene materiales disponibles.</p>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var material in Model.Materiales)
+                {
+                    <article class="col">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <p class="eyebrow mb-2">@material.Categoria.Nombre</p>
+                                <h3 class="h3">@material.Nombre</h3>
+                                <span class="badge estado-badge align-self-start @(material.Disponible ? "estado-disponible" : "estado-devuelto")">
+                                    @(material.Disponible ? "Disponible" : "Prestado")
+                                </span>
+                                <p class="text-secondary flex-grow-1">@material.Descripcion</p>
+                                <p class="mb-3">@(material.EsSolidario || material.PrecioDia == 0 ? "Gratuito" : $"S/ {material.PrecioDia:0.00} por día")</p>
+                                <a class="btn btn-outline-primary mt-auto" asp-controller="Materiales" asp-action="Detalle" asp-route-id="@material.Id">Ver material</a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+    <section class="mb-5" aria-labelledby="perfil-clases">
+        <h2 class="h2 mb-3" id="perfil-clases">Clases</h2>
+        @if (Model.Clases.Count == 0)
+        {
+            <p class="text-secondary">Este estudiante aún no ofrece clases.</p>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var clase in Model.Clases)
+                {
+                    <article class="col">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h3">@clase.Curso</h3>
+                                <p class="text-secondary flex-grow-1">@clase.Descripcion</p>
+                                <p class="mb-3">@(clase.EsSolidaria || clase.PrecioHora == 0 ? "Gratuita" : $"S/ {clase.PrecioHora:0.00} por hora")</p>
+                                <a class="btn btn-outline-primary mt-auto" asp-controller="Clases" asp-action="Detalle" asp-route-id="@clase.Id">Ver clase</a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
     <partial name="_Resenas" model="Model.ResumenResenas" />
 </section>
