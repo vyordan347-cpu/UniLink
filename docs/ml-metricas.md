@@ -14,3 +14,13 @@ Evaluación sobre una partición de prueba del 20 % del dataset (semilla fija: 4
 |---|---:|---:|
 | Negativo | 21 | 0 |
 | Positivo | 0 | 29 |
+
+## Recomendaciones con MatrixFactorization
+
+Evaluación sobre una partición de prueba del 20 % (semilla fija: 42).
+
+- Interacciones sintéticas: 900
+- Interacciones reales (base de datos): 4
+- Total de interacciones: 904
+- RMSE: 0.7376
+- R²: 0.6736
