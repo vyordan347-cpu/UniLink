@@ -41,3 +41,16 @@ description: Sistema de diseño de UniLink. Úsala siempre que crees o modifique
 - Colores fuera de los tokens.
 - Texto menor a 14px.
 - Carrito, checkout o cualquier estética de tienda.
+
+## Estilo glass (v2)
+Usar SOLO en: login, registro, hero de la landing, barra de navegación, tarjetas de estadísticas del panel y widget del asistente. El resto de pantallas se mantiene limpio (fondo claro y tarjetas blancas).
+
+- Fondo con foto del campus (wwwroot/img/campus/) + capa de degradado: linear-gradient(135deg, rgba(30,34,53,.75), rgba(59,76,202,.55)).
+- Panel de vidrio: background rgba(255,255,255,.12); backdrop-filter: blur(16px) saturate(140%); borde 1px rgba(255,255,255,.28); radio 20px; sombra 0 8px 32px rgba(0,0,0,.25).
+- Texto sobre vidrio: blanco (#FFFFFF) y secundario rgba(255,255,255,.75). Contraste mínimo AA.
+- Inputs en vidrio: alto 52px, fondo rgba(255,255,255,.10), ícono a la izquierda, borde rgba(20,184,166,.6); en foco, brillo: box-shadow 0 0 0 3px rgba(20,184,166,.35).
+- Botón principal en vidrio: turquesa sólido con brillo suave.
+- Navbar: sticky, rgba(255,255,255,.75) + blur(12px), borde inferior sutil.
+- Fallback: si el navegador no soporta backdrop-filter, usar un fondo más opaco (rgba(30,34,53,.85)).
+- Respetar prefers-reduced-motion. Sin animaciones exageradas (solo fade-in de 300ms).
+- Créditos de fotos en el pie: "Fotos: campus USMP".
