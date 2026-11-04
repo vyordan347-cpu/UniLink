@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UniLink.Data;
+using UniLink.Helpers;
 using UniLink.Models;
 using UniLink.Services;
 
@@ -110,8 +111,10 @@ public class AlquileresController(
         var costoTotal = 0m;
         if (modelo.FechaFin >= modelo.FechaInicio)
         {
-            var cantidadDias = modelo.FechaFin.DayNumber - modelo.FechaInicio.DayNumber + 1;
-            costoTotal = cantidadDias * material.PrecioDia;
+            costoTotal = CalculadoraAlquiler.Calcular(
+                modelo.FechaInicio,
+                modelo.FechaFin,
+                material.PrecioDia).CostoTotal;
             if (costoTotal > 99999999.99m)
             {
                 ModelState.AddModelError(string.Empty, "El costo total supera el máximo permitido.");
