@@ -1,0 +1,216 @@
+.ul-asistente {
+  position: fixed;
+  right: var(--ul-espacio-3);
+  bottom: var(--ul-espacio-3);
+  z-index: 1030;
+  display: grid;
+  justify-items: end;
+  gap: var(--ul-espacio-2);
+}
+
+.ul-chat-abrir {
+  min-height: 48px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: var(--ul-radio-badge);
+  color: var(--ul-superficie);
+  background: var(--ul-primario);
+  box-shadow: var(--ul-sombra-tarjeta);
+  font: inherit;
+  font-weight: 700;
+}
+
+.ul-chat-abrir:hover,
+.ul-chat-abrir:focus-visible {
+  background: var(--ul-accion);
+}
+
+.ul-chat-panel {
+  width: min(400px, calc(100vw - 48px));
+  height: min(620px, calc(100dvh - 112px));
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--ul-borde);
+  border-radius: var(--ul-radio-tarjeta);
+  background: var(--ul-superficie);
+  box-shadow: var(--ul-sombra-hover);
+}
+
+.ul-chat-panel[hidden] {
+  display: none;
+}
+
+.ul-chat-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ul-espacio-2);
+  padding: var(--ul-espacio-2);
+  border-bottom: 1px solid var(--ul-borde);
+  background: var(--ul-superficie);
+}
+
+.ul-chat-encabezado h3 {
+  margin: 0;
+  color: var(--ul-primario);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.ul-chat-encabezado p {
+  margin: 4px 0 0;
+  color: var(--ul-texto-suave);
+  font-size: 14px;
+}
+
+.ul-chat-acciones {
+  display: flex;
+  gap: var(--ul-espacio-1);
+}
+
+.ul-chat-icono {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--ul-borde);
+  border-radius: var(--ul-radio-boton);
+  color: var(--ul-texto);
+  background: var(--ul-superficie);
+  font: inherit;
+  font-size: 20px;
+}
+
+.ul-chat-icono:hover,
+.ul-chat-icono:focus-visible {
+  color: var(--ul-primario);
+  background: var(--ul-tinte-primario);
+}
+
+.ul-chat-mensajes {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ul-espacio-2);
+  overflow-y: auto;
+  padding: var(--ul-espacio-2);
+  background: var(--ul-fondo);
+}
+
+.ul-chat-mensaje {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 90%;
+}
+
+.ul-chat-mensaje.usuario {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.ul-chat-burbuja {
+  padding: 10px 14px;
+  border: 1px solid var(--ul-borde);
+  border-radius: var(--ul-radio-tarjeta);
+  color: var(--ul-texto);
+  background: var(--ul-superficie);
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.ul-chat-mensaje.usuario .ul-chat-burbuja {
+  border-color: var(--ul-primario);
+  color: var(--ul-superficie);
+  background: var(--ul-primario);
+}
+
+.ul-chat-herramientas {
+  margin: 4px 4px 0;
+  color: var(--ul-texto-suave);
+  font-size: 14px;
+}
+
+.ul-chat-escribiendo {
+  margin: 0;
+  padding: 0 var(--ul-espacio-2);
+  color: var(--ul-texto-suave);
+  font-size: 14px;
+}
+
+.ul-chat-sugerencias {
+  display: flex;
+  gap: var(--ul-espacio-1);
+  overflow-x: auto;
+  padding: var(--ul-espacio-1) var(--ul-espacio-2);
+}
+
+.ul-chat-sugerencias button {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 1px solid var(--ul-borde);
+  border-radius: var(--ul-radio-badge);
+  color: var(--ul-primario);
+  background: var(--ul-superficie);
+  font: inherit;
+  font-size: 14px;
+}
+
+.ul-chat-sugerencias button:hover,
+.ul-chat-sugerencias button:focus-visible {
+  border-color: var(--ul-primario);
+  background: var(--ul-tinte-primario);
+}
+
+.ul-chat-formulario {
+  display: flex;
+  gap: var(--ul-espacio-1);
+  padding: var(--ul-espacio-2);
+  border-top: 1px solid var(--ul-borde);
+  background: var(--ul-superficie);
+}
+
+.ul-chat-formulario input {
+  min-width: 0;
+  min-height: 44px;
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--ul-borde);
+  border-radius: var(--ul-radio-input);
+  color: var(--ul-texto);
+  background: var(--ul-superficie);
+  font: inherit;
+}
+
+.ul-chat-formulario input:focus {
+  border-color: var(--ul-accion);
+  outline: 3px solid var(--ul-foco);
+}
+
+.ul-chat-formulario button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: var(--ul-radio-boton);
+  color: var(--ul-superficie);
+  background: var(--ul-accion);
+  font: inherit;
+  font-weight: 700;
+}
+
+.ul-chat-formulario button:disabled {
+  opacity: .65;
+}
+
+@media (max-width: 575.98px) {
+  .ul-asistente {
+    right: var(--ul-espacio-2);
+    bottom: var(--ul-espacio-2);
+  }
+
+  .ul-chat-panel {
+    width: calc(100vw - 32px);
+    height: min(620px, calc(100dvh - 96px));
+  }
+}

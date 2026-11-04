@@ -36,6 +36,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @if (estaAutenticado)
+    {
+        <link rel="stylesheet" href="~/css/asistente.css" asp-append-version="true" />
+    }
     <link rel="stylesheet" href="~/UniLink.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -207,6 +211,47 @@
         @RenderBody()
     </main>
 
+    @if (estaAutenticado)
+    {
+        <div class="ul-asistente" data-asistente>
+            <section id="ul-chat-panel" class="ul-chat-panel" data-asistente-panel
+                     aria-label="Conversación con el Asistente UniLink" hidden>
+                <header class="ul-chat-encabezado">
+                    <div>
+                        <h3>Asistente UniLink <span aria-hidden="true">✨</span></h3>
+                        <p>Materiales y clases para tu vida universitaria</p>
+                    </div>
+                    <div class="ul-chat-acciones">
+                        <button class="ul-chat-icono" type="button" data-asistente-reiniciar aria-label="Reiniciar conversación"
+                                title="Reiniciar conversación">↻</button>
+                        <button class="ul-chat-icono" type="button" data-asistente-cerrar aria-label="Cerrar chat">×</button>
+                    </div>
+                </header>
+                <div class="ul-chat-mensajes" data-asistente-mensajes aria-live="polite" aria-relevant="additions">
+                    <div class="ul-chat-mensaje asistente">
+                        <div class="ul-chat-burbuja">¡Hola! Puedo ayudarte a encontrar materiales, clases y recomendaciones de UniLink.</div>
+                    </div>
+                </div>
+                <p class="ul-chat-escribiendo" data-asistente-escribiendo role="status" hidden>Escribiendo...</p>
+                <div class="ul-chat-sugerencias" data-asistente-sugerencias aria-label="Sugerencias rápidas">
+                    <button type="button">¿Qué materiales de Odontología hay?</button>
+                    <button type="button">Clases gratis de Anatomía</button>
+                    <button type="button">¿Qué me recomiendas?</button>
+                </div>
+                <form class="ul-chat-formulario" data-asistente-formulario>
+                    <label class="visually-hidden" for="ulAsistenteMensaje">Tu mensaje</label>
+                    <input id="ulAsistenteMensaje" name="mensaje" type="text" maxlength="2000"
+                           placeholder="Escribe tu mensaje..." autocomplete="off" required />
+                    <button type="submit" aria-label="Enviar mensaje">Enviar</button>
+                </form>
+            </section>
+            <button class="ul-chat-abrir" type="button" data-asistente-abrir aria-expanded="false"
+                    aria-controls="ul-chat-panel">
+                Asistente UniLink <span aria-hidden="true">✨</span>
+            </button>
+        </div>
+    }
+
     <footer class="site-footer">
         <div class="container">
             <span>UniLink</span> · Comunidad USMP · Conecta, comparte y aprende
@@ -288,6 +333,10 @@
         </script>
     }
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @if (estaAutenticado)
+    {
+        <script src="~/js/asistente.js" asp-append-version="true"></script>
+    }
     <script>
         document.querySelectorAll("[data-auto-dismiss]").forEach((alerta) => {
             window.setTimeout(() => bootstrap.Alert.getOrCreateInstance(alerta).close(), 5000);
