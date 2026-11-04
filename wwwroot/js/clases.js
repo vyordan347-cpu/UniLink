@@ -77,6 +77,7 @@
                 const vacio = document.querySelector("[data-clases-vacio]");
                 const conteo = document.querySelector("[data-clases-conteo]");
                 lista.replaceChildren(...clases.map(crearTarjeta));
+                window.unilinkAnimaciones?.animarEntrada(lista.children);
                 vacio.hidden = clases.length !== 0;
                 conteo.textContent = `${clases.length} ${clases.length === 1 ? "clase encontrada" : "clases encontradas"}`;
             } catch (error) {

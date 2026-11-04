@@ -92,10 +92,21 @@
     };
 
     const alternarPanel = (abierto) => {
-        panel.hidden = !abierto;
         botonAbrir.setAttribute("aria-expanded", String(abierto));
-        if (abierto) campoMensaje.focus();
-        else botonAbrir.focus();
+        if (abierto) {
+            panel.hidden = false;
+            window.unilinkAnimaciones?.abrirAsistente(panel);
+            campoMensaje.focus();
+            return;
+        }
+
+        const ocultarPanel = () => {
+            panel.hidden = true;
+            botonAbrir.focus();
+        };
+        if (!window.unilinkAnimaciones?.cerrarAsistente(panel, ocultarPanel)) {
+            ocultarPanel();
+        }
     };
 
     botonAbrir.addEventListener("click", () => alternarPanel(panel.hidden));
