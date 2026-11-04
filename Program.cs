@@ -243,24 +243,16 @@ app.MapScalarApiReference();
 
 using (var scope = app.Services.CreateScope())
 {
-    var migracionesAplicadas = false;
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<UniLinkDbContext>();
         await db.Database.MigrateAsync();
-        migracionesAplicadas = true;
+        var sembrador = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+        await sembrador.SeedAsync();
     }
     catch (Exception exception)
     {
-        app.Logger.LogError(
-            "No se pudieron aplicar las migraciones pendientes. Tipo de error: {TipoError}",
-            exception.GetType().Name);
-    }
-
-    if (migracionesAplicadas)
-    {
-        var sembrador = scope.ServiceProvider.GetRequiredService<DataSeeder>();
-        await sembrador.SeedAsync();
+        app.Logger.LogError(exception, "No se pudieron aplicar las migraciones o cargar los datos de demostración.");
     }
 
     var entrenador = scope.ServiceProvider.GetRequiredService<EntrenadorSentimiento>();
