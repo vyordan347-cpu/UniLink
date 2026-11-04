@@ -82,6 +82,10 @@ builder.Services.AddSingleton<IUserIdProvider, UsuarioIdProvider>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<NotificacionService>();
 builder.Services.AddSingleton<EntrenadorSentimiento>();
+builder.Services.AddSingleton<ModeloRecomendacion>();
+builder.Services.AddScoped<EntrenadorRecomendacion>();
+builder.Services.AddScoped<RecomendacionService>();
+builder.Services.AddHostedService<EntrenamientoRecomendacionBackgroundService>();
 var rutaModeloSentimiento = Path.Combine(builder.Environment.ContentRootPath, "ML", "Modelos", "sentimiento.zip");
 builder.Services
     .AddPredictionEnginePool<DatosSentimiento, PrediccionSentimiento>()

@@ -51,6 +51,64 @@
             </ul>
         </div>
     </div>
+    @{
+        var recomendaciones = ViewData["Recomendaciones"] as IReadOnlyList<RecomendacionViewModel>
+            ?? Array.Empty<RecomendacionViewModel>();
+    }
+    <section class="seccion-recomendaciones mt-5" aria-labelledby="titulo-recomendaciones">
+        <div class="mb-4">
+            <p class="text-uppercase fw-semibold text-primary mb-2">A tu medida</p>
+            <h2 id="titulo-recomendaciones" class="h2 mb-2">Te puede interesar ✨</h2>
+            <p class="text-secondary mb-0">Materiales y clases que podrían ayudarte en tu carrera.</p>
+        </div>
+        @if (recomendaciones.Count == 0)
+        {
+            <div class="recomendaciones-vacio">
+                <p class="mb-3">Aún no encontramos opciones disponibles de tu carrera.</p>
+                <a class="btn btn-outline-primary" asp-controller="Materiales" asp-action="Index">Explorar materiales</a>
+            </div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                @foreach (var recomendacion in recomendaciones)
+                {
+                    <div class="col">
+                        <article class="recomendacion-card h-100">
+                            @if (recomendacion.Tipo == "Material" && !string.IsNullOrWhiteSpace(recomendacion.ImagenUrl))
+                            {
+                                <img class="recomendacion-imagen" src="@recomendacion.ImagenUrl" alt="@recomendacion.Titulo" loading="lazy" />
+                            }
+                            <div class="recomendacion-contenido">
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <span class="recomendacion-etiqueta">Recomendado para ti</span>
+                                    @if (recomendacion.EsSolidario)
+                                    {
+                                        <span class="badge badge-solidario">GRATUITO</span>
+                                    }
+                                    <span class="recomendacion-tipo">@recomendacion.Tipo</span>
+                                </div>
+                                <p class="text-primary fw-semibold mb-1">@recomendacion.Carrera</p>
+                                <h3 class="h3">@recomendacion.Titulo</h3>
+                                <p class="text-secondary recomendacion-descripcion">@recomendacion.Descripcion</p>
+                                <div class="mt-auto">
+                                    @if (recomendacion.EsSolidario)
+                                    {
+                                        <p class="precio-material precio-solidario mb-3">GRATUITO</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="precio-material mb-3">S/ @recomendacion.Precio.ToString("0.00") <span>@recomendacion.UnidadPrecio</span></p>
+                                    }
+                                    <a class="btn btn-outline-primary w-100" href="@recomendacion.UrlDetalle">Ver detalle</a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        }
+    </section>
     <div class="mt-5">
         <h2 class="h3 mb-3">Categorías de materiales</h2>
         @if (Model.Count == 0)

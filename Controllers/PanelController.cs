@@ -13,11 +13,16 @@ public class PanelController : Controller
 {
     private readonly ICategoriaService _categoriaService;
     private readonly UniLinkDbContext _db;
+    private readonly RecomendacionService _recomendacionService;
 
-    public PanelController(ICategoriaService categoriaService, UniLinkDbContext db)
+    public PanelController(
+        ICategoriaService categoriaService,
+        UniLinkDbContext db,
+        RecomendacionService recomendacionService)
     {
         _categoriaService = categoriaService;
         _db = db;
+        _recomendacionService = recomendacionService;
     }
 
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
@@ -44,6 +49,9 @@ public class PanelController : Controller
                 cancellationToken);
 
         var categorias = await _categoriaService.ObtenerCategoriasAsync(cancellationToken);
+        ViewData["Recomendaciones"] = usuarioId is null
+            ? Array.Empty<RecomendacionViewModel>()
+            : await _recomendacionService.ObtenerAsync(usuarioId.Value, cancellationToken);
         return View(categorias);
     }
 }
