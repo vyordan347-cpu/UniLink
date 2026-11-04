@@ -29,7 +29,8 @@
                             <p class="precio-material mb-3">S/ @material.PrecioDia.ToString("0.00") <span>por día</span></p>
                         }
                         <div class="d-flex flex-wrap gap-2">
-                            <a class="btn btn-outline-primary flex-grow-1" asp-action="Detalle" asp-route-id="@material.Id">Ver detalle</a>
+                            <a class="btn btn-outline-primary flex-grow-1"
+                               asp-controller="Materiales" asp-action="Detalle" asp-route-id="@material.Id">Ver detalle</a>
                             @if (ViewData["MostrarAccionesPropietario"] is true)
                             {
                                 <a class="btn btn-outline-primary" asp-action="Editar" asp-route-id="@material.Id">Editar</a>

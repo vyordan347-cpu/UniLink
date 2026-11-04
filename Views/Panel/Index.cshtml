@@ -107,7 +107,16 @@
                                     {
                                         <p class="precio-material mb-3">S/ @recomendacion.Precio.ToString("0.00") <span>@recomendacion.UnidadPrecio</span></p>
                                     }
-                                    <a class="btn btn-outline-primary w-100" href="@recomendacion.UrlDetalle">Ver detalle</a>
+                                    @if (recomendacion.Tipo == "Material")
+                                    {
+                                        <a class="btn btn-outline-primary w-100"
+                                           asp-controller="Materiales" asp-action="Detalle" asp-route-id="@recomendacion.Id">Ver detalle</a>
+                                    }
+                                    else if (recomendacion.Tipo == "Clase")
+                                    {
+                                        <a class="btn btn-outline-primary w-100"
+                                           asp-controller="Clases" asp-action="Detalle" asp-route-id="@recomendacion.Id">Ver detalle</a>
+                                    }
                                 </div>
                             </div>
                         </article>
