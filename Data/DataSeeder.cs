@@ -13,80 +13,102 @@ public sealed class DataSeeder(
 
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
-        if (await db.Materiales.AnyAsync(cancellationToken))
-        {
-            return;
-        }
-
         await using var transaccion = await db.Database.BeginTransactionAsync(cancellationToken);
 
-        var ana = await ObtenerOCrearUsuarioAsync(
+        var (ana, anaCreada) = await ObtenerOCrearUsuarioAsync(
             "ana@usmp.pe", "Ana Torres", "DEMO-ANA", "Odontología", 6);
-        var diego = await ObtenerOCrearUsuarioAsync(
+        var (diego, diegoCreado) = await ObtenerOCrearUsuarioAsync(
             "diego@usmp.pe", "Diego Rojas", "DEMO-DIEGO", "Medicina", 8);
-        var valeria = await ObtenerOCrearUsuarioAsync(
+        var (valeria, valeriaCreada) = await ObtenerOCrearUsuarioAsync(
             "valeria@usmp.pe", "Valeria Paredes", "DEMO-VALERIA", "Ingeniería", 5);
 
-        var materiales = new[]
-        {
-            CrearMaterial("Kit de exploración dental", "Espejo, pinza y explorador esterilizables, listos para prácticas preclínicas.", "Odontología", 1, CondicionMaterial.MuyBueno, true, "San Isidro", 18m, false, ana.Id),
-            CrearMaterial("Articulador dental semiajustable", "Articulador completo para ejercicios de oclusión y montaje de modelos.", "Odontología", 1, CondicionMaterial.Bueno, false, "Santa Anita", 22m, false, ana.Id),
-            CrearMaterial("Tipodonto para endodoncia", "Modelo dental didáctico para practicar accesos y preparación de conductos.", "Odontología", 3, CondicionMaterial.MuyBueno, false, "Pueblo Libre", 12m, false, ana.Id),
-            CrearMaterial("Atlas de anatomía humana", "Atlas ilustrado de anatomía, edición universitaria en buen estado.", "Medicina", 4, CondicionMaterial.Bueno, false, "Cercado de Lima", 8m, false, ana.Id),
-            CrearMaterial("Estetoscopio clínico", "Estetoscopio de doble campana para prácticas de semiología.", "Medicina", 2, CondicionMaterial.MuyBueno, true, "Jesús María", 15m, false, diego.Id),
-            CrearMaterial("Tensiómetro aneroide", "Equipo manual con brazalete adulto y estuche de transporte.", "Medicina", 2, CondicionMaterial.Bueno, true, "La Molina", 10m, false, diego.Id),
-            CrearMaterial("Modelo anatómico de corazón", "Modelo desmontable a color para repasar cavidades y válvulas.", "Medicina", 3, CondicionMaterial.Bueno, false, "San Miguel", 0m, true, diego.Id),
-            CrearMaterial("Calculadora científica", "Calculadora científica para cursos de cálculo, física y estadística.", "Ingeniería", 5, CondicionMaterial.MuyBueno, false, "Surco", 6m, false, diego.Id),
-            CrearMaterial("Multímetro digital", "Multímetro con puntas de prueba y medición de voltaje, corriente y resistencia.", "Ingeniería", 6, CondicionMaterial.Bueno, false, "San Borja", 14m, false, valeria.Id),
-            CrearMaterial("Kit de prototipado Arduino", "Placa compatible, cables, protoboard y sensores básicos para laboratorio.", "Ingeniería", 6, CondicionMaterial.MuyBueno, false, "Miraflores", 20m, false, valeria.Id),
-            CrearMaterial("Manual de circuitos eléctricos", "Texto de consulta con ejercicios resueltos para circuitos I y II.", "Ingeniería", 4, CondicionMaterial.Bueno, false, "Lince", 0m, true, valeria.Id),
-            CrearMaterial("Calibrador Vernier", "Calibrador metálico de 150 mm con estuche, ideal para dibujo técnico.", "Ingeniería", 7, CondicionMaterial.Excelente, false, "Magdalena", 9m, false, valeria.Id)
-        };
+        var materialesAna = await AgregarDatosUsuarioSiNoTieneMaterialesAsync(
+            ana,
+            id =>
+            [
+                CrearMaterial("Kit de exploración dental", "Espejo, pinza y explorador esterilizables, listos para prácticas preclínicas.", "Odontología", 1, CondicionMaterial.MuyBueno, true, "San Isidro", 18m, false, id),
+                CrearMaterial("Articulador dental semiajustable", "Articulador completo para ejercicios de oclusión y montaje de modelos.", "Odontología", 1, CondicionMaterial.Bueno, false, "Santa Anita", 22m, false, id),
+                CrearMaterial("Tipodonto para endodoncia", "Modelo dental didáctico para practicar accesos y preparación de conductos.", "Odontología", 3, CondicionMaterial.MuyBueno, false, "Pueblo Libre", 12m, false, id),
+                CrearMaterial("Atlas de anatomía humana", "Atlas ilustrado de anatomía, edición universitaria en buen estado.", "Medicina", 4, CondicionMaterial.Bueno, false, "Cercado de Lima", 8m, false, id)
+            ],
+            id =>
+            [
+                CrearClase("Anatomía dental", "Repaso de nomenclatura, morfología y puntos de referencia dentales.", ModalidadClase.GoogleMeet, 25m, false, id),
+                CrearClase("Materiales dentales", "Acompañamiento para reconocer propiedades y usos clínicos de materiales.", ModalidadClase.Zoom, 0m, true, id)
+            ],
+            cancellationToken);
+        var materialesDiego = await AgregarDatosUsuarioSiNoTieneMaterialesAsync(
+            diego,
+            id =>
+            [
+                CrearMaterial("Estetoscopio clínico", "Estetoscopio de doble campana para prácticas de semiología.", "Medicina", 2, CondicionMaterial.MuyBueno, true, "Jesús María", 15m, false, id),
+                CrearMaterial("Tensiómetro aneroide", "Equipo manual con brazalete adulto y estuche de transporte.", "Medicina", 2, CondicionMaterial.Bueno, true, "La Molina", 10m, false, id),
+                CrearMaterial("Modelo anatómico de corazón", "Modelo desmontable a color para repasar cavidades y válvulas.", "Medicina", 3, CondicionMaterial.Bueno, false, "San Miguel", 0m, true, id),
+                CrearMaterial("Calculadora científica", "Calculadora científica para cursos de cálculo, física y estadística.", "Ingeniería", 5, CondicionMaterial.MuyBueno, false, "Surco", 6m, false, id)
+            ],
+            id =>
+            [
+                CrearClase("Fisiología humana", "Sesión de resolución de preguntas sobre sistemas y homeostasis.", ModalidadClase.GoogleMeet, 20m, false, id),
+                CrearClase("Anatomía: sistema cardiovascular", "Repaso solidario de corazón, circulación y vasos principales.", ModalidadClase.Zoom, 0m, true, id)
+            ],
+            cancellationToken);
+        var materialesValeria = await AgregarDatosUsuarioSiNoTieneMaterialesAsync(
+            valeria,
+            id =>
+            [
+                CrearMaterial("Multímetro digital", "Multímetro con puntas de prueba y medición de voltaje, corriente y resistencia.", "Ingeniería", 6, CondicionMaterial.Bueno, false, "San Borja", 14m, false, id),
+                CrearMaterial("Kit de prototipado Arduino", "Placa compatible, cables, protoboard y sensores básicos para laboratorio.", "Ingeniería", 6, CondicionMaterial.MuyBueno, false, "Miraflores", 20m, false, id),
+                CrearMaterial("Manual de circuitos eléctricos", "Texto de consulta con ejercicios resueltos para circuitos I y II.", "Ingeniería", 4, CondicionMaterial.Bueno, false, "Lince", 0m, true, id),
+                CrearMaterial("Calibrador Vernier", "Calibrador metálico de 150 mm con estuche, ideal para dibujo técnico.", "Ingeniería", 7, CondicionMaterial.Excelente, false, "Magdalena", 9m, false, id)
+            ],
+            id =>
+            [
+                CrearClase("Cálculo diferencial", "Ejercicios guiados de límites, derivadas y aplicaciones.", ModalidadClase.GoogleMeet, 18m, false, id),
+                CrearClase("Introducción a circuitos", "Asesoría práctica para análisis de circuitos eléctricos básicos.", ModalidadClase.Zoom, 22m, false, id)
+            ],
+            cancellationToken);
 
-        db.Materiales.AddRange(materiales);
-        await db.SaveChangesAsync(cancellationToken);
-
-        var clases = new[]
-        {
-            CrearClase("Anatomía dental", "Repaso de nomenclatura, morfología y puntos de referencia dentales.", ModalidadClase.GoogleMeet, 25m, false, ana.Id),
-            CrearClase("Materiales dentales", "Acompañamiento para reconocer propiedades y usos clínicos de materiales.", ModalidadClase.Zoom, 0m, true, ana.Id),
-            CrearClase("Fisiología humana", "Sesión de resolución de preguntas sobre sistemas y homeostasis.", ModalidadClase.GoogleMeet, 20m, false, diego.Id),
-            CrearClase("Anatomía: sistema cardiovascular", "Repaso solidario de corazón, circulación y vasos principales.", ModalidadClase.Zoom, 0m, true, diego.Id),
-            CrearClase("Cálculo diferencial", "Ejercicios guiados de límites, derivadas y aplicaciones.", ModalidadClase.GoogleMeet, 18m, false, valeria.Id),
-            CrearClase("Introducción a circuitos", "Asesoría práctica para análisis de circuitos eléctricos básicos.", ModalidadClase.Zoom, 22m, false, valeria.Id)
-        };
-
-        db.Clases.AddRange(clases);
         await db.SaveChangesAsync(cancellationToken);
 
         var fechaHoy = DateOnly.FromDateTime(DateTime.UtcNow);
-        var alquileres = new[]
+        var alquileres = new List<Alquiler>();
+        var resenas = new List<Resena>();
+
+        if (materialesAna.Length > 0)
         {
-            CrearAlquiler(materiales[0], diego, fechaHoy.AddDays(-12), fechaHoy.AddDays(-10), EstadoSolicitud.Devuelto),
-            CrearAlquiler(materiales[4], valeria, fechaHoy.AddDays(-8), fechaHoy.AddDays(-7), EstadoSolicitud.Devuelto),
-            CrearAlquiler(materiales[10], ana, fechaHoy.AddDays(-6), fechaHoy.AddDays(-5), EstadoSolicitud.Devuelto),
-            CrearAlquiler(materiales[8], ana, fechaHoy.AddDays(2), fechaHoy.AddDays(3), EstadoSolicitud.Pendiente),
-            CrearAlquiler(materiales[6], valeria, fechaHoy.AddDays(-4), fechaHoy.AddDays(-2), EstadoSolicitud.Activo)
-        };
+            var alquiler = CrearAlquiler(materialesAna[0], diego, fechaHoy.AddDays(-12), fechaHoy.AddDays(-10), EstadoSolicitud.Devuelto);
+            alquileres.Add(alquiler);
+            resenas.Add(CrearResena(diego, ana, materialesAna[0], alquiler, 5, "El kit estaba limpio y en excelentes condiciones. Coordinamos la entrega sin problemas."));
+        }
+
+        if (materialesDiego.Length > 0)
+        {
+            var alquilerDevuelto = CrearAlquiler(materialesDiego[0], valeria, fechaHoy.AddDays(-8), fechaHoy.AddDays(-7), EstadoSolicitud.Devuelto);
+            alquileres.Add(alquilerDevuelto);
+            alquileres.Add(CrearAlquiler(materialesDiego[2], valeria, fechaHoy.AddDays(-4), fechaHoy.AddDays(-2), EstadoSolicitud.Activo));
+            resenas.Add(CrearResena(valeria, diego, materialesDiego[0], alquilerDevuelto, 5, "El estetoscopio funcionó muy bien para mis prácticas clínicas."));
+        }
+
+        if (materialesValeria.Length > 0)
+        {
+            var alquilerDevuelto = CrearAlquiler(materialesValeria[2], ana, fechaHoy.AddDays(-6), fechaHoy.AddDays(-5), EstadoSolicitud.Devuelto);
+            alquileres.Add(alquilerDevuelto);
+            alquileres.Add(CrearAlquiler(materialesValeria[0], ana, fechaHoy.AddDays(2), fechaHoy.AddDays(3), EstadoSolicitud.Pendiente));
+            resenas.Add(CrearResena(ana, valeria, materialesValeria[2], alquilerDevuelto, 4, "El manual estaba bien cuidado y me ayudó a preparar el curso."));
+        }
 
         db.Alquileres.AddRange(alquileres);
-        await db.SaveChangesAsync(cancellationToken);
-
-        db.Resenas.AddRange(
-            CrearResena(diego, ana, materiales[0], alquileres[0], 5, "El kit estaba limpio y en excelentes condiciones. Coordinamos la entrega sin problemas."),
-            CrearResena(valeria, diego, materiales[4], alquileres[1], 5, "El estetoscopio funcionó muy bien para mis prácticas clínicas."),
-            CrearResena(ana, valeria, materiales[10], alquileres[2], 4, "El manual estaba bien cuidado y me ayudó a preparar el curso."));
+        db.Resenas.AddRange(resenas);
         await db.SaveChangesAsync(cancellationToken);
         await transaccion.CommitAsync(cancellationToken);
 
         logger.LogInformation(
-            "Se cargaron datos de demostración: {CantidadMateriales} materiales, {CantidadClases} clases y {CantidadResenas} reseñas.",
-            materiales.Length,
-            clases.Length,
-            3);
+            "Datos demo procesados: {CantidadUsuarios} usuarios y {CantidadMateriales} materiales creados.",
+            (anaCreada ? 1 : 0) + (diegoCreado ? 1 : 0) + (valeriaCreada ? 1 : 0),
+            materialesAna.Length + materialesDiego.Length + materialesValeria.Length);
     }
 
-    private async Task<Usuario> ObtenerOCrearUsuarioAsync(
+    private async Task<(Usuario Usuario, bool Creado)> ObtenerOCrearUsuarioAsync(
         string correo,
         string nombre,
         string codigoAlumno,
@@ -96,7 +118,7 @@ public sealed class DataSeeder(
         var usuarioExistente = await userManager.FindByEmailAsync(correo);
         if (usuarioExistente is not null)
         {
-            return usuarioExistente;
+            return (usuarioExistente, false);
         }
 
         var usuario = new Usuario
@@ -118,7 +140,24 @@ public sealed class DataSeeder(
             throw new InvalidOperationException($"No se pudo crear el usuario de demostración {correo}: {errores}");
         }
 
-        return usuario;
+        return (usuario, true);
+    }
+
+    private async Task<Material[]> AgregarDatosUsuarioSiNoTieneMaterialesAsync(
+        Usuario usuario,
+        Func<int, Material[]> crearMateriales,
+        Func<int, Clase[]> crearClases,
+        CancellationToken cancellationToken)
+    {
+        if (await db.Materiales.AnyAsync(material => material.PropietarioId == usuario.Id, cancellationToken))
+        {
+            return [];
+        }
+
+        var materiales = crearMateriales(usuario.Id);
+        db.Materiales.AddRange(materiales);
+        db.Clases.AddRange(crearClases(usuario.Id));
+        return materiales;
     }
 
     private static Material CrearMaterial(
