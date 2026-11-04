@@ -140,6 +140,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserIdProvider, UsuarioIdProvider>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<NotificacionService>();
 builder.Services.AddSingleton<EntrenadorSentimiento>();
 builder.Services.AddSingleton<ModeloRecomendacion>();
@@ -164,12 +165,13 @@ app.UseForwardedHeaders();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
+app.UseExceptionHandler("/Home/Error");
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseStatusCodePagesWithReExecute("/Home/Error", "?statusCode={0}");
 
 app.UseSession();
 app.UseAuthentication();
@@ -241,16 +243,24 @@ app.MapScalarApiReference();
 
 using (var scope = app.Services.CreateScope())
 {
+    var migracionesAplicadas = false;
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<UniLinkDbContext>();
-        db.Database.Migrate();
+        await db.Database.MigrateAsync();
+        migracionesAplicadas = true;
     }
     catch (Exception exception)
     {
         app.Logger.LogError(
             "No se pudieron aplicar las migraciones pendientes. Tipo de error: {TipoError}",
             exception.GetType().Name);
+    }
+
+    if (migracionesAplicadas)
+    {
+        var sembrador = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+        await sembrador.SeedAsync();
     }
 
     var entrenador = scope.ServiceProvider.GetRequiredService<EntrenadorSentimiento>();

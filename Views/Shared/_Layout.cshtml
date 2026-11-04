@@ -20,6 +20,11 @@
     var usuarioId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var idUsuario)
         ? idUsuario
         : (int?)null;
+    var tituloPagina = ViewData["Title"] as string ?? "UniLink";
+    var tituloCompleto = tituloPagina == "UniLink" ? tituloPagina : $"{tituloPagina} | UniLink";
+    var descripcionPagina = ViewData["MetaDescription"] as string
+        ?? "Conecta, comparte y aprende. Encuentra materiales académicos y clases ofrecidos por estudiantes de la USMP.";
+    var urlPagina = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.PathBase}{Context.Request.Path}";
     var notificacionesNoLeidas = estaAutenticado && usuarioId.HasValue
         ? await Db.Notificaciones.CountAsync(notificacion =>
             notificacion.UsuarioId == usuarioId.Value && !notificacion.Leida)
@@ -29,7 +34,15 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@(ViewData["Title"] is string title && title != "Inicio" ? $"{title} | UniLink" : "UniLink")</title>
+    <title>@tituloCompleto</title>
+    <meta name="description" content="@descripcionPagina" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="UniLink" />
+    <meta property="og:title" content="@tituloCompleto" />
+    <meta property="og:description" content="@descripcionPagina" />
+    <meta property="og:url" content="@urlPagina" />
+    <link rel="icon" type="image/svg+xml" href="~/img/unilink-mark.svg" />
+    <link rel="alternate icon" href="~/favicon.ico" />
     <script type="importmap"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
