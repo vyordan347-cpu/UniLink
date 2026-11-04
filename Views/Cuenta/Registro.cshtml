@@ -3,56 +3,94 @@
     ViewData["Title"] = "Crear cuenta";
 }
 
-<section class="container form-page">
-    <div class="row justify-content-center">
-        <div class="col-12">
-            <div class="form-card">
-                <p class="eyebrow mb-2">Comunidad estudiantil USMP</p>
-                <h1 class="mb-4">Crear cuenta</h1>
-                <form asp-action="Registro" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                    <div class="mb-3">
-                        <label asp-for="Nombre" class="form-label">Nombre completo</label>
-                        <input asp-for="Nombre" class="form-control" autocomplete="name" />
-                        <span asp-validation-for="Nombre" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Correo" class="form-label">Correo institucional</label>
-                        <input asp-for="Correo" class="form-control" autocomplete="email" />
-                        <span asp-validation-for="Correo" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="CodigoAlumno" class="form-label">Código de alumno</label>
-                        <input asp-for="CodigoAlumno" class="form-control" />
-                        <span asp-validation-for="CodigoAlumno" class="text-danger"></span>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-8 mb-3">
-                            <label asp-for="Carrera" class="form-label"></label>
-                            <input asp-for="Carrera" class="form-control" />
-                            <span asp-validation-for="Carrera" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label asp-for="Ciclo" class="form-label"></label>
-                            <input asp-for="Ciclo" class="form-control" type="number" min="1" max="14" />
-                            <span asp-validation-for="Ciclo" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Contraseña" class="form-label"></label>
-                        <input asp-for="Contraseña" class="form-control" autocomplete="new-password" />
-                        <span asp-validation-for="Contraseña" class="text-danger"></span>
-                    </div>
-                    <div class="mb-4">
-                        <label asp-for="Confirmar" class="form-label">Confirmar contraseña</label>
-                        <input asp-for="Confirmar" class="form-control" autocomplete="new-password" />
-                        <span asp-validation-for="Confirmar" class="text-danger"></span>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Crear cuenta</button>
-                </form>
-                <p class="text-center mt-4 mb-0">¿Ya tienes cuenta? <a asp-action="Login">Inicia sesión</a></p>
+<section class="ul-auth-page ul-auth-register" aria-labelledby="titulo-registro">
+    <img class="ul-hero-foto" src="~/img/campus/campus-edificio.webp.png" alt="" aria-hidden="true"
+         width="814" height="668" loading="eager" fetchpriority="high" />
+    <div class="ul-auth-card ul-glass">
+        <a class="ul-auth-brand" asp-controller="Home" asp-action="Index" aria-label="UniLink, ir al inicio">
+            <img src="~/img/unilink-mark.svg" width="48" height="48" alt="" />
+            <span>UniLink</span>
+        </a>
+        <p class="ul-auth-subtitle">Comunidad estudiantil USMP</p>
+        <h1 id="titulo-registro">Únete a UniLink</h1>
+        <form asp-action="Registro" method="post">
+            <div asp-validation-summary="ModelOnly" class="ul-auth-validation mb-3"></div>
+            <div class="ul-auth-field">
+                <label asp-for="Nombre" class="form-label">Nombre completo</label>
+                <div class="ul-auth-control">
+                    <svg class="ul-auth-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4 21a8 8 0 0 1 16 0" />
+                    </svg>
+                    <input asp-for="Nombre" class="form-control ul-glass-input" autocomplete="name" />
+                </div>
+                <span asp-validation-for="Nombre" class="ul-auth-validation"></span>
             </div>
-        </div>
+            <div class="ul-auth-field">
+                <label asp-for="Correo" class="form-label">Correo institucional</label>
+                <div class="ul-auth-control">
+                    <svg class="ul-auth-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <rect x="3" y="5" width="18" height="14" rx="2" />
+                        <path d="m4 7 8 6 8-6" />
+                    </svg>
+                    <input asp-for="Correo" class="form-control ul-glass-input" autocomplete="email" />
+                </div>
+                <span asp-validation-for="Correo" class="ul-auth-validation"></span>
+            </div>
+            <div class="ul-auth-field">
+                <label asp-for="CodigoAlumno" class="form-label">Código de alumno</label>
+                <div class="ul-auth-control">
+                    <svg class="ul-auth-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4 21a8 8 0 0 1 16 0" />
+                    </svg>
+                    <input asp-for="CodigoAlumno" class="form-control ul-glass-input" />
+                </div>
+                <span asp-validation-for="CodigoAlumno" class="ul-auth-validation"></span>
+            </div>
+            <div class="row">
+                <div class="col-md-8 ul-auth-field">
+                    <label asp-for="Carrera" class="form-label"></label>
+                    <div class="ul-auth-control">
+                        <svg class="ul-auth-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <circle cx="12" cy="8" r="4" />
+                            <path d="M4 21a8 8 0 0 1 16 0" />
+                        </svg>
+                        <input asp-for="Carrera" class="form-control ul-glass-input" />
+                    </div>
+                    <span asp-validation-for="Carrera" class="ul-auth-validation"></span>
+                </div>
+                <div class="col-md-4 ul-auth-field">
+                    <label asp-for="Ciclo" class="form-label"></label>
+                    <input asp-for="Ciclo" class="form-control ul-glass-input" type="number" min="1" max="14" />
+                    <span asp-validation-for="Ciclo" class="ul-auth-validation"></span>
+                </div>
+            </div>
+            <div class="ul-auth-field">
+                <label asp-for="Contraseña" class="form-label"></label>
+                <div class="ul-auth-control">
+                    <svg class="ul-auth-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <rect x="4" y="10" width="16" height="11" rx="2" />
+                        <path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2" />
+                    </svg>
+                    <input asp-for="Contraseña" class="form-control ul-glass-input" autocomplete="new-password" />
+                </div>
+                <span asp-validation-for="Contraseña" class="ul-auth-validation"></span>
+            </div>
+            <div class="ul-auth-field">
+                <label asp-for="Confirmar" class="form-label">Confirmar contraseña</label>
+                <div class="ul-auth-control">
+                    <svg class="ul-auth-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <rect x="4" y="10" width="16" height="11" rx="2" />
+                        <path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2" />
+                    </svg>
+                    <input asp-for="Confirmar" class="form-control ul-glass-input" autocomplete="new-password" />
+                </div>
+                <span asp-validation-for="Confirmar" class="ul-auth-validation"></span>
+            </div>
+            <button type="submit" class="btn btn-action ul-glass-button w-100">Crear cuenta</button>
+        </form>
+        <p class="ul-auth-switch">¿Ya tienes cuenta? <a asp-action="Login">Inicia sesión</a></p>
     </div>
 </section>
 
