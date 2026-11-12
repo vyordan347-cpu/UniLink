@@ -13,6 +13,7 @@ namespace UniLink.Controllers;
 public class MaterialesController(
     UniLinkDbContext db,
     ICategoriaService categoriaService,
+    BusquedaService busquedaService,
     ILogger<MaterialesController> logger) : Controller
 {
     private const string CookieFiltro = "ul_filtro_materiales";
@@ -197,6 +198,7 @@ public class MaterialesController(
 
         db.Materiales.Add(material);
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarMaterialAsync(material.Id, cancellationToken);
 
         TempData["Mensaje"] = "¡Material publicado!";
         return RedirectToAction(nameof(Detalle), new { id = material.Id });
@@ -279,6 +281,7 @@ public class MaterialesController(
         material.EsSolidario = modelo.EsSolidario;
 
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarMaterialAsync(material.Id, cancellationToken);
         TempData["Mensaje"] = "Material actualizado correctamente.";
         return RedirectToAction(nameof(Detalle), new { id = material.Id });
     }
@@ -309,6 +312,7 @@ public class MaterialesController(
 
         db.Materiales.Remove(material);
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarMaterialAsync(id, cancellationToken);
         TempData["Mensaje"] = "Material eliminado correctamente.";
         return RedirectToAction(nameof(Mios));
     }

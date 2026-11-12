@@ -140,6 +140,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserIdProvider, UsuarioIdProvider>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<BusquedaService>();
 builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<NotificacionService>();
 builder.Services.AddSingleton<EntrenadorSentimiento>();
@@ -249,6 +250,8 @@ using (var scope = app.Services.CreateScope())
         await db.Database.MigrateAsync();
         var sembrador = scope.ServiceProvider.GetRequiredService<DataSeeder>();
         await sembrador.SeedAsync();
+        var busquedaService = scope.ServiceProvider.GetRequiredService<BusquedaService>();
+        await busquedaService.InicializarIndicesVaciosAsync(CancellationToken.None);
     }
     catch (Exception exception)
     {
