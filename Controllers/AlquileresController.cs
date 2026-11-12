@@ -12,6 +12,7 @@ namespace UniLink.Controllers;
 [Authorize]
 public class AlquileresController(
     UniLinkDbContext db,
+    BusquedaService busquedaService,
     NotificacionService notificacionService,
     ILogger<AlquileresController> logger) : Controller
 {
@@ -353,6 +354,7 @@ public class AlquileresController(
         alquiler.Estado = EstadoSolicitud.Activo;
         alquiler.Material.Disponible = false;
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarMaterialAsync(alquiler.MaterialId, cancellationToken);
         await notificacionService.CrearYEnviarAsync(
             alquiler.SolicitanteId,
             $"El material {alquiler.Material.Nombre} fue marcado como entregado.",
@@ -388,6 +390,7 @@ public class AlquileresController(
         alquiler.Estado = EstadoSolicitud.Devuelto;
         alquiler.Material.Disponible = true;
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarMaterialAsync(alquiler.MaterialId, cancellationToken);
         await notificacionService.CrearYEnviarAsync(
             alquiler.SolicitanteId,
             $"El material {alquiler.Material.Nombre} fue marcado como devuelto.",

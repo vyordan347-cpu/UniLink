@@ -11,6 +11,7 @@ namespace UniLink.Controllers;
 
 public class ClasesController(
     UniLinkDbContext db,
+    BusquedaService busquedaService,
     NotificacionService notificacionService) : Controller
 {
     [HttpGet]
@@ -130,6 +131,7 @@ public class ClasesController(
 
         db.Clases.Add(clase);
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarClaseAsync(clase.Id, cancellationToken);
         TempData["Mensaje"] = "¡Clase publicada!";
         return RedirectToAction(nameof(Detalle), new { id = clase.Id });
     }
@@ -184,6 +186,7 @@ public class ClasesController(
         clase.PrecioHora = modelo.EsSolidaria ? 0 : modelo.PrecioHora;
         clase.EsSolidaria = modelo.EsSolidaria;
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarClaseAsync(clase.Id, cancellationToken);
 
         TempData["Mensaje"] = "Clase actualizada correctamente.";
         return RedirectToAction(nameof(Detalle), new { id });
@@ -213,6 +216,7 @@ public class ClasesController(
 
         db.Clases.Remove(clase);
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarClaseAsync(id, cancellationToken);
         TempData["Mensaje"] = "Clase eliminada correctamente.";
         return RedirectToAction(nameof(Mias), new { pestaña = "tutor" });
     }
