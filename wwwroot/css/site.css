@@ -201,10 +201,24 @@ p {
 }
 
 .recomendaciones-vacio {
-  padding: var(--ul-espacio-4);
+  display: grid;
+  justify-items: center;
+  padding: var(--ul-espacio-5) var(--ul-espacio-3);
   border: 1px solid var(--ul-borde);
   border-radius: var(--ul-radio-tarjeta);
   background: var(--ul-superficie);
+}
+
+.recomendaciones-vacio-icono {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--ul-espacio-2);
+  place-items: center;
+  border-radius: 50%;
+  color: var(--ul-primario);
+  background: var(--ul-tinte-primario);
+  font-size: 24px;
 }
 
 @media (max-width: 575.98px) {

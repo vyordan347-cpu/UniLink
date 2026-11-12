@@ -12,14 +12,31 @@ public sealed class EntrenamientoRecomendacionBackgroundService(
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            await using (var scope = scopeFactory.CreateAsyncScope())
+            try
             {
+                await using var scope = scopeFactory.CreateAsyncScope();
                 var entrenador = scope.ServiceProvider.GetRequiredService<EntrenadorRecomendacion>();
                 await entrenador.EntrenarAsync(stoppingToken);
+                logger.LogInformation("El entrenamiento de recomendaciones finalizó correctamente.");
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "Falló el entrenamiento en segundo plano de recomendaciones.");
             }
 
-            logger.LogInformation("Próximo reentrenamiento de recomendaciones en 24 horas.");
-            await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+            try
+            {
+                logger.LogInformation("Próximo reentrenamiento de recomendaciones en 24 horas.");
+                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
         }
     }
 }
