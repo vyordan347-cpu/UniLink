@@ -21,6 +21,11 @@ public class UniLinkDbContext(DbContextOptions<UniLinkDbContext> options)
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.HasDbFunction(
+                typeof(UniLinkDbContext).GetMethod(nameof(Unaccent), [typeof(string)])!)
+            .HasName("unaccent")
+            .IsBuiltIn();
+
         modelBuilder.Entity<Usuario>()
             .HasIndex(usuario => usuario.CodigoAlumno)
             .IsUnique();
@@ -126,4 +131,7 @@ public class UniLinkDbContext(DbContextOptions<UniLinkDbContext> options)
             new Categoria { Id = 6, Nombre = "Tecnología" },
             new Categoria { Id = 7, Nombre = "Otros" });
     }
+
+    public static string Unaccent(string texto) =>
+        throw new NotSupportedException("Esta función solo se puede ejecutar en PostgreSQL.");
 }
