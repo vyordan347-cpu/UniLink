@@ -21,6 +21,21 @@
 </section>
 
 <section class="container py-4 py-lg-5">
+    <div class="busqueda-explorar mb-4" data-busqueda
+         data-tipo="clases"
+         data-endpoint="@Url.Action("Buscar", "Busqueda")"
+         data-detalle-url="@Url.Action("Detalle", "Clases")">
+        <label for="busquedaClases">Busca materiales, cursos o tutores...</label>
+        <input id="busquedaClases" class="form-control" type="search" maxlength="150"
+               placeholder="Busca materiales, cursos o tutores..." autocomplete="off"
+               aria-describedby="busquedaClasesEstado" data-busqueda-input />
+        <div class="busqueda-explorar-pie">
+            <p id="busquedaClasesEstado" class="text-secondary mb-0" role="status" aria-live="polite" data-busqueda-estado>
+                Escribe para ver resultados mientras buscas.
+            </p>
+            <span class="badge busqueda-algolia" data-busqueda-motor hidden>Búsqueda con Algolia</span>
+        </div>
+    </div>
     <nav class="explorar-tabs mb-4" aria-label="Explorar">
         <a asp-controller="Materiales" asp-action="Index">Materiales</a>
         <a class="active" aria-current="page" asp-controller="Clases" asp-action="Index">Clases</a>
@@ -56,52 +71,56 @@
         </div>
     </form>
 
-    <p class="text-secondary mb-3" data-clases-conteo aria-live="polite">
+    <p class="text-secondary mb-3" data-clases-conteo data-busqueda-conteo aria-live="polite">
         @Model.Clases.Count @(Model.Clases.Count == 1 ? "clase encontrada" : "clases encontradas")
     </p>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4" data-clases-lista data-explorar-tarjetas>
-        @foreach (var clase in Model.Clases)
-        {
-            <div class="col">
-                <article class="card tarjeta-clase h-100">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex flex-wrap gap-2 mb-3">
-                            @if (clase.EsSolidaria)
-                            {
-                                <span class="badge badge-solidario">GRATUITO</span>
-                            }
-                            <span class="badge badge-modalidad">@ModalidadClaseHelper.ObtenerEtiqueta(clase.Modalidad)</span>
+    <div data-busqueda-resultados data-explorar-tarjetas>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4" data-clases-lista>
+            @foreach (var clase in Model.Clases)
+            {
+                <div class="col">
+                    <article class="card tarjeta-clase h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                @if (clase.EsSolidaria)
+                                {
+                                    <span class="badge badge-solidario">GRATUITO</span>
+                                }
+                                <span class="badge badge-modalidad">@ModalidadClaseHelper.ObtenerEtiqueta(clase.Modalidad)</span>
+                            </div>
+                            <p class="small text-primary fw-semibold mb-1">@clase.Tutor.Carrera</p>
+                            <h2 class="h3">@clase.Curso</h2>
+                            <p class="text-secondary mb-3">Tutor: @clase.Tutor.Nombre</p>
+                            <div class="mt-auto">
+                                @if (clase.EsSolidaria)
+                                {
+                                    <p class="precio-clase precio-solidario">GRATUITO</p>
+                                }
+                                else
+                                {
+                                    <p class="precio-clase">S/ @clase.PrecioHora.ToString("0.00") <span>por hora</span></p>
+                                }
+                                <a class="btn btn-outline-primary w-100" asp-action="Detalle" asp-route-id="@clase.Id">Ver clase</a>
+                            </div>
                         </div>
-                        <p class="small text-primary fw-semibold mb-1">@clase.Tutor.Carrera</p>
-                        <h2 class="h3">@clase.Curso</h2>
-                        <p class="text-secondary mb-3">Tutor: @clase.Tutor.Nombre</p>
-                        <div class="mt-auto">
-                            @if (clase.EsSolidaria)
-                            {
-                                <p class="precio-clase precio-solidario">GRATUITO</p>
-                            }
-                            else
-                            {
-                                <p class="precio-clase">S/ @clase.PrecioHora.ToString("0.00") <span>por hora</span></p>
-                            }
-                            <a class="btn btn-outline-primary w-100" asp-action="Detalle" asp-route-id="@clase.Id">Ver clase</a>
-                        </div>
-                    </div>
-                </article>
-            </div>
-        }
-    </div>
-    <div class="estado-vacio text-center mt-4" data-clases-vacio hidden>
-        <span class="estado-vacio-icono" aria-hidden="true">⌕</span>
-        <h2 class="h3 mt-3">Aún no encontramos clases</h2>
-        <p>Prueba cambiar los filtros o vuelve más tarde.</p>
-        <a class="btn btn-outline-primary" asp-action="Index">Ver todas las clases</a>
+                    </article>
+                </div>
+            }
+        </div>
+        <div class="estado-vacio text-center mt-4" data-clases-vacio hidden>
+            <span class="estado-vacio-icono" aria-hidden="true">⌕</span>
+            <h2 class="h3 mt-3">Aún no encontramos clases</h2>
+            <p>Prueba cambiar los filtros o vuelve más tarde.</p>
+            <a class="btn btn-outline-primary" asp-action="Index">Ver todas las clases</a>
+        </div>
     </div>
 </section>
 
 @section Styles {
     <link rel="stylesheet" href="~/css/clases.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/busqueda.css" asp-append-version="true" />
 }
 @section Scripts {
     <script src="~/js/clases.js" asp-append-version="true"></script>
+    <script src="~/js/busqueda.js" asp-append-version="true"></script>
 }

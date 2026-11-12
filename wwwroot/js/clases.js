@@ -58,6 +58,11 @@
     const formulario = document.querySelector("[data-clases-filtros]");
     if (formulario) {
         formulario.addEventListener("submit", async (evento) => {
+            const busqueda = document.querySelector("[data-busqueda-input]");
+            if (busqueda?.value.trim()) {
+                return;
+            }
+
             evento.preventDefault();
             const datos = new FormData(formulario);
             const parametros = new URLSearchParams();

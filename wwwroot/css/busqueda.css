@@ -1,0 +1,56 @@
+.busqueda-explorar {
+    padding: var(--ul-espacio-3);
+    border: 1px solid var(--ul-borde);
+    border-radius: var(--ul-radio-tarjeta);
+    background: var(--ul-superficie);
+    box-shadow: var(--ul-sombra-sutil);
+}
+
+.busqueda-explorar label {
+    display: block;
+    margin-bottom: var(--ul-espacio-1);
+    color: var(--ul-texto);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.busqueda-explorar input {
+    min-height: 56px;
+    padding: var(--ul-espacio-2);
+    border: 1px solid var(--ul-borde);
+    border-radius: var(--ul-radio-input);
+    font-size: 16px;
+}
+
+.busqueda-explorar input:focus {
+    border-color: var(--ul-accion);
+    box-shadow: 0 0 0 3px var(--ul-foco);
+}
+
+.busqueda-explorar-pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ul-espacio-1);
+    margin-top: var(--ul-espacio-1);
+}
+
+.busqueda-algolia {
+    border-radius: var(--ul-radio-badge);
+    color: var(--ul-primario);
+    background: var(--ul-tinte-primario);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 7px 12px;
+}
+
+@media (max-width: 575.98px) {
+    .busqueda-explorar {
+        padding: var(--ul-espacio-2);
+    }
+
+    .busqueda-explorar label {
+        font-size: 18px;
+    }
+}
