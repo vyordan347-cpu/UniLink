@@ -70,9 +70,11 @@
         </div>
         @if (recomendaciones.Count == 0)
         {
-            <div class="recomendaciones-vacio">
-                <p class="mb-3">Aún no encontramos opciones disponibles de tu carrera.</p>
-                <a class="btn btn-outline-primary" asp-controller="Materiales" asp-action="Index">Explorar materiales</a>
+            <div class="recomendaciones-vacio text-center" role="status">
+                <span class="recomendaciones-vacio-icono" aria-hidden="true">✨</span>
+                <h3 class="h3 mb-2">Aún no hay opciones para mostrar</h3>
+                <p class="text-secondary mb-4">Explora los materiales disponibles y encuentra algo útil para tus estudios.</p>
+                <a class="btn btn-action" asp-controller="Materiales" asp-action="Index">Explorar materiales</a>
             </div>
         }
         else
