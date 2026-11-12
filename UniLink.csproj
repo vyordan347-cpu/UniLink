@@ -42,6 +42,7 @@
     </Content>
     <Content Include="ML\Modelos\recomendacion.zip" Condition="Exists('ML\Modelos\recomendacion.zip')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 

@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using UniLink.Data;
+using UniLink.Helpers;
 using UniLink.ML;
 using UniLink.Models;
 
@@ -10,7 +11,8 @@ namespace UniLink.Services;
 public sealed class RecomendacionService(
     UniLinkDbContext db,
     IDistributedCache cache,
-    ModeloRecomendacion modelo)
+    ModeloRecomendacion modelo,
+    ILogger<RecomendacionService> logger)
 {
     private static readonly DistributedCacheEntryOptions OpcionesCache = new()
     {
@@ -25,8 +27,14 @@ public sealed class RecomendacionService(
         var valorCache = await cache.GetStringAsync(claveCache, cancellationToken);
         if (valorCache is not null)
         {
-            return JsonSerializer.Deserialize<List<RecomendacionViewModel>>(valorCache)
+            var recomendacionesEnCache = JsonSerializer.Deserialize<List<RecomendacionViewModel>>(valorCache)
                 ?? throw new InvalidDataException("La caché de recomendaciones contiene datos no válidos.");
+            if (recomendacionesEnCache.Count > 0)
+            {
+                return recomendacionesEnCache;
+            }
+
+            await cache.RemoveAsync(claveCache, cancellationToken);
         }
 
         var usuario = await db.Usuarios.AsNoTracking()
@@ -35,23 +43,16 @@ public sealed class RecomendacionService(
             .SingleOrDefaultAsync(cancellationToken)
             ?? throw new InvalidOperationException("No se encontró el usuario autenticado.");
 
-        var materialesAlquilados = await db.Alquileres.AsNoTracking()
-            .Where(alquiler => alquiler.SolicitanteId == usuarioId
-                && alquiler.Estado != EstadoSolicitud.Rechazado)
-            .Select(alquiler => alquiler.MaterialId)
-            .Distinct()
-            .ToListAsync(cancellationToken);
-        var clasesReservadas = await db.ReservasClase.AsNoTracking()
-            .Where(reserva => reserva.AlumnoId == usuarioId
-                && reserva.Estado != EstadoSolicitud.Rechazado)
-            .Select(reserva => reserva.ClaseId)
-            .Distinct()
-            .ToListAsync(cancellationToken);
+        var tieneAlquileres = await db.Alquileres.AsNoTracking()
+            .AnyAsync(alquiler => alquiler.SolicitanteId == usuarioId
+                && alquiler.Estado != EstadoSolicitud.Rechazado, cancellationToken);
+        var tieneReservas = await db.ReservasClase.AsNoTracking()
+            .AnyAsync(reserva => reserva.AlumnoId == usuarioId
+                && reserva.Estado != EstadoSolicitud.Rechazado, cancellationToken);
 
         var materiales = await db.Materiales.AsNoTracking()
             .Where(material => material.Disponible
-                && material.PropietarioId != usuarioId
-                && !materialesAlquilados.Contains(material.Id))
+                && material.PropietarioId != usuarioId)
             .Select(material => new CandidatoRecomendacion(
                 "Material",
                 material.Id,
@@ -68,7 +69,7 @@ public sealed class RecomendacionService(
                 material.FechaPublicacion))
             .ToListAsync(cancellationToken);
         var clasesDatos = await db.Clases.AsNoTracking()
-            .Where(clase => clase.TutorId != usuarioId && !clasesReservadas.Contains(clase.Id))
+            .Where(clase => clase.TutorId != usuarioId)
             .Select(clase => new
             {
                 clase.Id,
@@ -97,35 +98,95 @@ public sealed class RecomendacionService(
             clase.FechaPublicacion));
 
         var candidatos = materiales.Concat(clases).ToList();
-        var tieneHistorial = materialesAlquilados.Count > 0 || clasesReservadas.Count > 0;
-        List<RecomendacionViewModel> recomendaciones;
-        if (candidatos.Count == 0)
+        var tieneHistorial = tieneAlquileres || tieneReservas;
+        var carreraUsuarioNormalizada = TextoBusqueda.NormalizarSinTildes(usuario.Carrera).Trim();
+        List<RecomendacionViewModel> recomendaciones = [];
+        string nivelUsado;
+        if (candidatos.Count > 0 && tieneHistorial && modelo.PuedePredecir)
         {
-            recomendaciones = [];
+            try
+            {
+                var puntuaciones = modelo.Predecir(
+                    $"usuario_{usuarioId}",
+                    candidatos.Select(candidato => candidato.ClaveModelo).Distinct(StringComparer.Ordinal).ToArray());
+                if (puntuaciones.Count > 0)
+                {
+                    recomendaciones = candidatos
+                        .OrderByDescending(candidato => puntuaciones.TryGetValue(candidato.ClaveModelo, out var puntuacion)
+                            ? puntuacion
+                            : float.NegativeInfinity)
+                        .ThenByDescending(candidato => candidato.Popularidad)
+                        .Take(6)
+                        .Select(candidato => candidato.AVista())
+                        .ToList();
+                    nivelUsado = "modelo MatrixFactorization";
+                    logger.LogInformation(
+                        "Recomendaciones para usuario {UsuarioId}: se usó {Nivel}; {Cantidad} ítems devueltos.",
+                        usuarioId,
+                        nivelUsado,
+                        recomendaciones.Count);
+                    await GuardarCacheSiTieneResultadosAsync(claveCache, recomendaciones, cancellationToken);
+                    return recomendaciones;
+                }
+            }
+            catch (Exception exception)
+            {
+                logger.LogWarning(
+                    exception,
+                    "No se pudo usar MatrixFactorization para el usuario {UsuarioId}; se aplicará el fallback.",
+                    usuarioId);
+            }
         }
-        else if (!tieneHistorial)
+
+        var nivelFallback = "sin-resultados";
+        if (AgregarCandidatos(
+                candidatos
+                    .Where(candidato => TextoBusqueda.NormalizarSinTildes(candidato.Carrera).Trim()
+                        == carreraUsuarioNormalizada)
+                    .OrderByDescending(candidato => candidato.Popularidad)
+                    .ThenByDescending(candidato => candidato.FechaPublicacion),
+                recomendaciones))
         {
-            recomendaciones = candidatos
-                .Where(candidato => string.Equals(candidato.Carrera, usuario.Carrera, StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(candidato => candidato.Popularidad)
-                .ThenByDescending(candidato => candidato.FechaPublicacion)
-                .Take(6)
-                .Select(candidato => candidato.AVista())
-                .ToList();
+            nivelFallback = "carrera";
         }
-        else
+
+        if (recomendaciones.Count < 6
+            && AgregarCandidatos(
+                candidatos
+                    .OrderByDescending(candidato => candidato.Popularidad)
+                    .ThenByDescending(candidato => candidato.FechaPublicacion),
+                recomendaciones))
         {
-            var puntuaciones = modelo.Predecir(
-                $"usuario_{usuarioId}",
-                candidatos.Select(candidato => candidato.ClaveModelo).Distinct(StringComparer.Ordinal).ToArray());
-            recomendaciones = candidatos
-                .OrderByDescending(candidato => puntuaciones.TryGetValue(candidato.ClaveModelo, out var puntuacion)
-                    ? puntuacion
-                    : float.NegativeInfinity)
-                .ThenByDescending(candidato => candidato.Popularidad)
-                .Take(6)
-                .Select(candidato => candidato.AVista())
-                .ToList();
+            nivelFallback = "plataforma";
+        }
+
+        if (recomendaciones.Count < 6
+            && AgregarCandidatos(
+                candidatos.OrderByDescending(candidato => candidato.FechaPublicacion),
+                recomendaciones))
+        {
+            nivelFallback = "recientes";
+        }
+
+        nivelUsado = $"fallback {nivelFallback}";
+        logger.LogInformation(
+            "Recomendaciones para usuario {UsuarioId}: se usó {Nivel}; {Cantidad} ítems devueltos.",
+            usuarioId,
+            nivelUsado,
+            recomendaciones.Count);
+
+        await GuardarCacheSiTieneResultadosAsync(claveCache, recomendaciones, cancellationToken);
+        return recomendaciones;
+    }
+
+    private async Task GuardarCacheSiTieneResultadosAsync(
+        string claveCache,
+        IReadOnlyList<RecomendacionViewModel> recomendaciones,
+        CancellationToken cancellationToken)
+    {
+        if (recomendaciones.Count == 0)
+        {
+            return;
         }
 
         await cache.SetStringAsync(
@@ -133,7 +194,31 @@ public sealed class RecomendacionService(
             JsonSerializer.Serialize(recomendaciones),
             OpcionesCache,
             cancellationToken);
-        return recomendaciones;
+    }
+
+    private static bool AgregarCandidatos(
+        IEnumerable<CandidatoRecomendacion> candidatos,
+        List<RecomendacionViewModel> recomendaciones)
+    {
+        var idsAgregados = recomendaciones
+            .Select(recomendacion => (recomendacion.Tipo, recomendacion.Id))
+            .ToHashSet();
+        var cantidadInicial = recomendaciones.Count;
+
+        foreach (var candidato in candidatos)
+        {
+            if (recomendaciones.Count == 6)
+            {
+                break;
+            }
+
+            if (idsAgregados.Add((candidato.Tipo, candidato.Id)))
+            {
+                recomendaciones.Add(candidato.AVista());
+            }
+        }
+
+        return recomendaciones.Count > cantidadInicial;
     }
 
     private sealed record CandidatoRecomendacion(
