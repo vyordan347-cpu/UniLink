@@ -11,6 +11,8 @@ namespace UniLink.Controllers;
 
 public class ClasesController(
     UniLinkDbContext db,
+    BusquedaService busquedaService,
+    ColaCorreos colaCorreos,
     NotificacionService notificacionService) : Controller
 {
     [HttpGet]
@@ -130,6 +132,7 @@ public class ClasesController(
 
         db.Clases.Add(clase);
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarClaseAsync(clase.Id, cancellationToken);
         TempData["Mensaje"] = "¡Clase publicada!";
         return RedirectToAction(nameof(Detalle), new { id = clase.Id });
     }
@@ -184,6 +187,7 @@ public class ClasesController(
         clase.PrecioHora = modelo.EsSolidaria ? 0 : modelo.PrecioHora;
         clase.EsSolidaria = modelo.EsSolidaria;
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarClaseAsync(clase.Id, cancellationToken);
 
         TempData["Mensaje"] = "Clase actualizada correctamente.";
         return RedirectToAction(nameof(Detalle), new { id });
@@ -213,6 +217,7 @@ public class ClasesController(
 
         db.Clases.Remove(clase);
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarClaseAsync(id, cancellationToken);
         TempData["Mensaje"] = "Clase eliminada correctamente.";
         return RedirectToAction(nameof(Mias), new { pestaña = "tutor" });
     }
@@ -454,6 +459,24 @@ public class ClasesController(
             $"Tu reserva para {reserva.Clase.Curso} fue aprobada.",
             urlReservasAlumno,
             cancellationToken);
+        await colaCorreos.PublicarAsync(
+            new CorreoMensaje(
+                reserva.Alumno.Email ?? string.Empty,
+                "Tu reserva de clase fue confirmada",
+                "reserva-clase-confirmada",
+                new Dictionary<string, string>
+                {
+                    ["Titulo"] = "Reserva de clase confirmada",
+                    ["Mensaje"] = $"Tu reserva para {reserva.Clase.Curso} fue aprobada.",
+                    ["BotonTexto"] = "Ver clase",
+                    ["BotonUrl"] = Url.Action(
+                        "Detalle",
+                        "Clases",
+                        new { id = reserva.ClaseId },
+                        Request.Scheme) ?? string.Empty,
+                    ["EnlaceReunion"] = reserva.EnlaceReunion ?? string.Empty
+                }),
+            cancellationToken);
 
         TempData["Mensaje"] = "Reserva aprobada. Las otras solicitudes pendientes para esa fecha y hora fueron rechazadas.";
         return RedirectToAction(nameof(Mias), new { pestaña = "tutor" });
@@ -555,6 +578,7 @@ public class ClasesController(
     private async Task<ReservaClase?> ObtenerReservaAsync(int id, CancellationToken cancellationToken) =>
         await db.ReservasClase
             .Include(reserva => reserva.Clase)
+            .Include(reserva => reserva.Alumno)
             .FirstOrDefaultAsync(reserva => reserva.Id == id, cancellationToken);
 
     private void ValidarOferta(ClaseViewModel modelo)

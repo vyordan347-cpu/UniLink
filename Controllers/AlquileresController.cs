@@ -12,6 +12,8 @@ namespace UniLink.Controllers;
 [Authorize]
 public class AlquileresController(
     UniLinkDbContext db,
+    BusquedaService busquedaService,
+    ColaCorreos colaCorreos,
     NotificacionService notificacionService,
     ILogger<AlquileresController> logger) : Controller
 {
@@ -162,6 +164,30 @@ public class AlquileresController(
             Url.Action(nameof(Recibidas), "Alquileres")
                 ?? throw new InvalidOperationException("No se pudo generar la URL de solicitudes recibidas."),
             cancellationToken);
+        var correoPropietario = await db.Usuarios.AsNoTracking()
+            .Where(usuario => usuario.Id == material.PropietarioId)
+            .Select(usuario => usuario.Email)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (!string.IsNullOrWhiteSpace(correoPropietario))
+        {
+            await colaCorreos.PublicarAsync(
+                new CorreoMensaje(
+                    correoPropietario,
+                    "Recibiste una solicitud de alquiler",
+                    "solicitud-alquiler-recibida",
+                    new Dictionary<string, string>
+                    {
+                        ["Titulo"] = "Nueva solicitud de alquiler",
+                        ["Mensaje"] = $"{nombreSolicitante} solicitó alquilar {material.Nombre}.",
+                        ["BotonTexto"] = "Ver material",
+                        ["BotonUrl"] = Url.Action(
+                            "Detalle",
+                            "Materiales",
+                            new { id = material.Id },
+                            Request.Scheme) ?? string.Empty
+                    }),
+                cancellationToken);
+        }
 
         return RedirectToAction(nameof(Confirmacion), new { id = alquiler.Id });
     }
@@ -290,6 +316,27 @@ public class AlquileresController(
             $"Tu solicitud de {alquiler.Material.Nombre} fue aprobada.",
             urlAlquileres,
             cancellationToken);
+        await colaCorreos.PublicarAsync(
+            new CorreoMensaje(
+                alquiler.Solicitante.Email ?? string.Empty,
+                "Tu solicitud de alquiler fue aprobada",
+                "solicitud-alquiler-aprobada",
+                new Dictionary<string, string>
+                {
+                    ["Titulo"] = "Solicitud aprobada",
+                    ["Mensaje"] = $"Tu solicitud para {alquiler.Material.Nombre} fue aprobada.",
+                    ["BotonTexto"] = "Ver material",
+                    ["BotonUrl"] = Url.Action(
+                        "Detalle",
+                        "Materiales",
+                        new { id = alquiler.MaterialId },
+                        Request.Scheme) ?? string.Empty
+                }),
+            cancellationToken);
+        foreach (var conflicto in solicitudesEnConflicto)
+        {
+            await PublicarCorreoRechazoAsync(conflicto, cancellationToken);
+        }
 
         TempData["Mensaje"] = "Solicitud aprobada. Las solicitudes pendientes que se cruzaban fueron rechazadas.";
         return RedirectToAction(nameof(Recibidas));
@@ -324,6 +371,7 @@ public class AlquileresController(
             Url.Action(nameof(Index), "Alquileres")
                 ?? throw new InvalidOperationException("No se pudo generar la URL de alquileres."),
             cancellationToken);
+        await PublicarCorreoRechazoAsync(alquiler, cancellationToken);
 
         TempData["Mensaje"] = "Solicitud rechazada.";
         return RedirectToAction(nameof(Recibidas));
@@ -353,6 +401,7 @@ public class AlquileresController(
         alquiler.Estado = EstadoSolicitud.Activo;
         alquiler.Material.Disponible = false;
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarMaterialAsync(alquiler.MaterialId, cancellationToken);
         await notificacionService.CrearYEnviarAsync(
             alquiler.SolicitanteId,
             $"El material {alquiler.Material.Nombre} fue marcado como entregado.",
@@ -388,6 +437,7 @@ public class AlquileresController(
         alquiler.Estado = EstadoSolicitud.Devuelto;
         alquiler.Material.Disponible = true;
         await db.SaveChangesAsync(cancellationToken);
+        await busquedaService.SincronizarMaterialAsync(alquiler.MaterialId, cancellationToken);
         await notificacionService.CrearYEnviarAsync(
             alquiler.SolicitanteId,
             $"El material {alquiler.Material.Nombre} fue marcado como devuelto.",
@@ -402,7 +452,27 @@ public class AlquileresController(
     private async Task<Alquiler?> ObtenerAlquilerParaActualizarAsync(int id, CancellationToken cancellationToken) =>
         await db.Alquileres
             .Include(alquiler => alquiler.Material)
+            .Include(alquiler => alquiler.Solicitante)
             .FirstOrDefaultAsync(alquiler => alquiler.Id == id, cancellationToken);
+
+    private Task<bool> PublicarCorreoRechazoAsync(Alquiler alquiler, CancellationToken cancellationToken) =>
+        colaCorreos.PublicarAsync(
+            new CorreoMensaje(
+                alquiler.Solicitante.Email ?? string.Empty,
+                "Tu solicitud de alquiler fue rechazada",
+                "solicitud-alquiler-rechazada",
+                new Dictionary<string, string>
+                {
+                    ["Titulo"] = "Solicitud rechazada",
+                    ["Mensaje"] = $"Tu solicitud para {alquiler.Material.Nombre} fue rechazada.",
+                    ["BotonTexto"] = "Ver material",
+                    ["BotonUrl"] = Url.Action(
+                        "Detalle",
+                        "Materiales",
+                        new { id = alquiler.MaterialId },
+                        Request.Scheme) ?? string.Empty
+                }),
+            cancellationToken);
 
     private int? ObtenerUsuarioId()
     {

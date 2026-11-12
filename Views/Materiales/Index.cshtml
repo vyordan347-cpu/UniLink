@@ -21,6 +21,21 @@
 </section>
 
 <section class="container py-4 py-lg-5">
+    <div class="busqueda-explorar mb-4" data-busqueda
+         data-tipo="materiales"
+         data-endpoint="@Url.Action("Buscar", "Busqueda")"
+         data-detalle-url="@Url.Action("Detalle", "Materiales")">
+        <label for="busquedaMateriales">Busca materiales, cursos o tutores...</label>
+        <input id="busquedaMateriales" class="form-control" type="search" maxlength="150"
+               placeholder="Busca materiales, cursos o tutores..." autocomplete="off"
+               aria-describedby="busquedaMaterialesEstado" data-busqueda-input />
+        <div class="busqueda-explorar-pie">
+            <p id="busquedaMaterialesEstado" class="text-secondary mb-0" role="status" aria-live="polite" data-busqueda-estado>
+                Escribe para ver resultados mientras buscas.
+            </p>
+            <span class="badge busqueda-algolia" data-busqueda-motor hidden>Búsqueda con Algolia</span>
+        </div>
+    </div>
     <nav class="explorar-tabs mb-4" aria-label="Explorar">
         <a class="active" aria-current="page" asp-controller="Materiales" asp-action="Index">Materiales</a>
         <a asp-controller="Clases" asp-action="Index">Clases</a>
@@ -66,25 +81,31 @@
         </div>
     </form>
 
-    @if (Model.Materiales.Count == 0)
-    {
-        <div class="estado-vacio text-center">
-            <span class="estado-vacio-icono" aria-hidden="true">⌕</span>
-            <h2 class="h4 mt-3">Aún no encontramos materiales</h2>
-            <p>Prueba cambiar los filtros o vuelve más tarde. Siempre hay algo nuevo en la comunidad.</p>
-            <a class="btn btn-outline-primary" asp-action="Index" asp-route-limpiarFiltros="true">Ver todos los materiales</a>
-        </div>
-    }
-    else
-    {
-        <p class="text-secondary mb-3">@Model.Materiales.Count @(Model.Materiales.Count == 1 ? "material encontrado" : "materiales encontrados")</p>
-        <div data-explorar-tarjetas>
+    <p class="text-secondary mb-3" data-busqueda-conteo aria-live="polite">
+        @Model.Materiales.Count @(Model.Materiales.Count == 1 ? "material encontrado" : "materiales encontrados")
+    </p>
+    <div data-busqueda-resultados data-explorar-tarjetas>
+        @if (Model.Materiales.Count == 0)
+        {
+            <div class="estado-vacio text-center">
+                <span class="estado-vacio-icono" aria-hidden="true">⌕</span>
+                <h2 class="h4 mt-3">Aún no encontramos materiales</h2>
+                <p>Prueba cambiar los filtros o vuelve más tarde. Siempre hay algo nuevo en la comunidad.</p>
+                <a class="btn btn-outline-primary" asp-action="Index" asp-route-limpiarFiltros="true">Ver todos los materiales</a>
+            </div>
+        }
+        else
+        {
             <partial name="_Tarjetas" model="Model.Materiales" />
-        </div>
-    }
+        }
+    </div>
 </section>
 
 @section Styles {
     <link rel="stylesheet" href="~/css/materiales.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/clases.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/busqueda.css" asp-append-version="true" />
+}
+@section Scripts {
+    <script src="~/js/busqueda.js" asp-append-version="true"></script>
 }

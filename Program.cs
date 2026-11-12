@@ -140,8 +140,13 @@ builder.Services.AddOpenApi();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserIdProvider, UsuarioIdProvider>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<BusquedaService>();
 builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<NotificacionService>();
+builder.Services.AddSingleton<ColaCorreos>();
+builder.Services.AddHttpClient<EnvioCorreoResend>();
+builder.Services.AddHostedService<ConsumidorCorreos>();
+builder.Services.AddHostedService<RecordatoriosAlquilerBackgroundService>();
 builder.Services.AddSingleton<EntrenadorSentimiento>();
 builder.Services.AddSingleton<ModeloRecomendacion>();
 builder.Services.AddScoped<EntrenadorRecomendacion>();
@@ -159,6 +164,13 @@ if (string.IsNullOrWhiteSpace(redisConnectionString))
 {
     app.Logger.LogWarning(
         "No se configuró Redis. Se usarán sesiones y caché en memoria; las claves de Data Protection no se compartirán mediante Redis.");
+}
+
+var colaCorreos = app.Services.GetRequiredService<ColaCorreos>();
+if (!colaCorreos.Habilitada)
+{
+    app.Logger.LogWarning(
+        "El envío de correos está deshabilitado. Configura CloudAMQP:Url y Resend:ApiKey para habilitarlo.");
 }
 
 app.UseForwardedHeaders();
@@ -180,7 +192,7 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapGet("/health", async (UniLinkDbContext db, IDistributedCache cache) =>
+app.MapGet("/health", async (UniLinkDbContext db, IDistributedCache cache, ColaCorreos colaCorreos) =>
 {
     var baseDeDatosConectada = false;
     try
@@ -224,11 +236,29 @@ app.MapGet("/health", async (UniLinkDbContext db, IDistributedCache cache) =>
         }
     }
 
+    var colaEstado = "sin conexión";
+    if (colaCorreos.CloudAMQPConfigurado)
+    {
+        try
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            if (await colaCorreos.VerificarConexionAsync(timeout.Token).WaitAsync(timeout.Token))
+            {
+                colaEstado = "conectada";
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Una comprobación lenta de RabbitMQ no debe bloquear el endpoint de salud.
+        }
+    }
+
     return Results.Ok(new
     {
         estado = "ok",
         baseDeDatos = baseDeDatosConectada ? "conectada" : "sin conexión",
-        redis = redisEstado
+        redis = redisEstado,
+        cola = colaEstado
     });
 });
 
@@ -249,6 +279,8 @@ using (var scope = app.Services.CreateScope())
         await db.Database.MigrateAsync();
         var sembrador = scope.ServiceProvider.GetRequiredService<DataSeeder>();
         await sembrador.SeedAsync();
+        var busquedaService = scope.ServiceProvider.GetRequiredService<BusquedaService>();
+        await busquedaService.InicializarIndicesVaciosAsync(CancellationToken.None);
     }
     catch (Exception exception)
     {
