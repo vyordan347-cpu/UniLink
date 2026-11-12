@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UniLink.Data;
+using UniLink.Helpers;
 using UniLink.Models;
 using UniLink.Services;
 
@@ -52,12 +53,22 @@ public sealed class BusquedaController(
                 ? await BuscarMaterialesPorIdsAsync(ids, soloGratuitos, cancellationToken)
                 : await BuscarClasesPorIdsAsync(ids, soloGratuitos, cancellationToken);
 
-            return Ok(new { motor = "algolia", resultados = respuestaAlgolia });
+            if (respuestaAlgolia.Count > 0)
+            {
+                return Ok(new { motor = "algolia", resultados = respuestaAlgolia });
+            }
         }
 
         var respuestaPostgres = tipo == "materiales"
             ? await BuscarMaterialesEnPostgresAsync(q, soloGratuitos, cancellationToken)
             : await BuscarClasesEnPostgresAsync(q, soloGratuitos, cancellationToken);
+        if (respuestaPostgres.Count == 0 && !string.IsNullOrWhiteSpace(q) && soloGratuitos)
+        {
+            respuestaPostgres = tipo == "materiales"
+                ? await BuscarMaterialesEnPostgresAsync(q, false, cancellationToken)
+                : await BuscarClasesEnPostgresAsync(q, false, cancellationToken);
+        }
+
         return Ok(new { motor = "postgresql", resultados = respuestaPostgres });
     }
 
@@ -131,12 +142,12 @@ public sealed class BusquedaController(
             .AsQueryable();
         if (!string.IsNullOrWhiteSpace(texto))
         {
-            var patron = $"%{texto}%";
+            var patron = $"%{TextoBusqueda.NormalizarSinTildes(texto)}%";
             consulta = consulta.Where(item =>
-                EF.Functions.ILike(item.Nombre, patron)
-                || EF.Functions.ILike(item.Descripcion, patron)
-                || EF.Functions.ILike(item.Carrera, patron)
-                || EF.Functions.ILike(item.Categoria.Nombre, patron));
+                EF.Functions.ILike(UniLinkDbContext.Unaccent(item.Nombre), patron)
+                || EF.Functions.ILike(UniLinkDbContext.Unaccent(item.Descripcion), patron)
+                || EF.Functions.ILike(UniLinkDbContext.Unaccent(item.Carrera), patron)
+                || EF.Functions.ILike(UniLinkDbContext.Unaccent(item.Categoria.Nombre), patron));
         }
 
         if (soloGratuitos)
@@ -160,12 +171,12 @@ public sealed class BusquedaController(
             .AsQueryable();
         if (!string.IsNullOrWhiteSpace(texto))
         {
-            var patron = $"%{texto}%";
+            var patron = $"%{TextoBusqueda.NormalizarSinTildes(texto)}%";
             consulta = consulta.Where(item =>
-                EF.Functions.ILike(item.Curso, patron)
-                || EF.Functions.ILike(item.Descripcion, patron)
-                || EF.Functions.ILike(item.Tutor.Nombre, patron)
-                || EF.Functions.ILike(item.Tutor.Carrera, patron));
+                EF.Functions.ILike(UniLinkDbContext.Unaccent(item.Curso), patron)
+                || EF.Functions.ILike(UniLinkDbContext.Unaccent(item.Descripcion), patron)
+                || EF.Functions.ILike(UniLinkDbContext.Unaccent(item.Tutor.Nombre), patron)
+                || EF.Functions.ILike(UniLinkDbContext.Unaccent(item.Tutor.Carrera), patron));
         }
 
         if (soloGratuitos)

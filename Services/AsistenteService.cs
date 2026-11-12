@@ -15,7 +15,8 @@ public sealed class AsistenteService(
     IDistributedCache cache,
     UniLinkDbContext db,
     RecomendacionService recomendacionService,
-    ILogger<AsistenteService> logger)
+    ILogger<AsistenteService> logger,
+    ILoggerFactory loggerFactory)
 {
     private const string InstruccionesSistema =
         "Eres el Asistente UniLink, ayudas a estudiantes de la USMP a encontrar materiales y clases. " +
@@ -207,8 +208,12 @@ public sealed class AsistenteService(
         var herramientasUsadas = new HashSet<string>(StringComparer.Ordinal);
         var kernel = constructor.Build();
         kernel.FunctionInvocationFilters.Add(new FiltroHerramientas(herramientasUsadas));
-        kernel.Plugins.AddFromObject(new MaterialesPlugin(db, usuarioId), "MaterialesPlugin");
-        kernel.Plugins.AddFromObject(new ClasesPlugin(db, usuarioId), "ClasesPlugin");
+        kernel.Plugins.AddFromObject(
+            new MaterialesPlugin(db, usuarioId, loggerFactory.CreateLogger<MaterialesPlugin>()),
+            "MaterialesPlugin");
+        kernel.Plugins.AddFromObject(
+            new ClasesPlugin(db, usuarioId, loggerFactory.CreateLogger<ClasesPlugin>()),
+            "ClasesPlugin");
         kernel.Plugins.AddFromObject(new MiActividadPlugin(db, usuarioId), "MiActividadPlugin");
         kernel.Plugins.AddFromObject(new CostosPlugin(db), "CostosPlugin");
         kernel.Plugins.AddFromObject(
