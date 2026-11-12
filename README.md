@@ -35,13 +35,6 @@ Al iniciar la aplicación con una base de datos sin materiales, el sembrador loc
 
 Son cuentas compartidas únicamente para pruebas. No las uses con información real. El sembrador solo inserta el conjunto de datos si todavía no hay materiales; en una base con datos existentes no necesariamente se crearán estas cuentas.
 
-## Capturas
-
-Los siguientes archivos son marcadores visuales. Reemplázalos por capturas reales conservando sus rutas o actualizando los enlaces:
-
-| Inicio | Explorar materiales y clases | Solidario y asistente |
-|---|---|---|
-| ![Marcador para la captura de inicio](docs/img/inicio.svg) | ![Marcador para materiales y clases](docs/img/materiales-clases.svg) | ![Marcador para Solidario y asistente](docs/img/solidario-asistente.svg) |
 
 ## Stack tecnológico
 
