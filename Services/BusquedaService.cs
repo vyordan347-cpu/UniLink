@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Algolia.Search.Clients;
+using Algolia.Search.Exceptions;
 using Algolia.Search.Http;
 using Algolia.Search.Models.Search;
 using Microsoft.EntityFrameworkCore;
@@ -183,17 +184,10 @@ public sealed class BusquedaService
         var clases = await ObtenerDocumentosClasesAsync(cancellationToken);
         var cliente = CrearCliente(_adminKey!);
 
-        await ConfigurarIndiceAsync(cliente, IndiceMateriales);
-        await ConfigurarIndiceAsync(cliente, IndiceClases);
-        if (materiales.Count > 0)
-        {
-            await cliente.SaveObjectsAsync(IndiceMateriales, materiales);
-        }
-
-        if (clases.Count > 0)
-        {
-            await cliente.SaveObjectsAsync(IndiceClases, clases);
-        }
+        var estadoMateriales = await ObtenerEstadoIndiceAsync(cliente, IndiceMateriales, cancellationToken);
+        var estadoClases = await ObtenerEstadoIndiceAsync(cliente, IndiceClases, cancellationToken);
+        await IndexarIndiceAsync(cliente, IndiceMateriales, materiales, estadoMateriales, cancellationToken);
+        await IndexarIndiceAsync(cliente, IndiceClases, clases, estadoClases, cancellationToken);
     }
 
     public async Task InicializarIndicesVaciosAsync(CancellationToken cancellationToken)
@@ -206,12 +200,14 @@ public sealed class BusquedaService
         try
         {
             var cliente = CrearCliente(_adminKey!);
-            await ConfigurarIndiceAsync(cliente, IndiceMateriales);
-            await ConfigurarIndiceAsync(cliente, IndiceClases);
-            if (await EstaVacioAsync(cliente, IndiceMateriales)
-                || await EstaVacioAsync(cliente, IndiceClases))
+            var estadoMateriales = await ObtenerEstadoIndiceAsync(cliente, IndiceMateriales, cancellationToken);
+            var estadoClases = await ObtenerEstadoIndiceAsync(cliente, IndiceClases, cancellationToken);
+            if (estadoMateriales != EstadoIndice.ConDatos || estadoClases != EstadoIndice.ConDatos)
             {
-                await ReindexarTodoAsync(cancellationToken);
+                var materiales = await ObtenerDocumentosMaterialesAsync(cancellationToken);
+                var clases = await ObtenerDocumentosClasesAsync(cancellationToken);
+                await IndexarIndiceAsync(cliente, IndiceMateriales, materiales, estadoMateriales, cancellationToken);
+                await IndexarIndiceAsync(cliente, IndiceClases, clases, estadoClases, cancellationToken);
             }
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
@@ -220,26 +216,82 @@ public sealed class BusquedaService
         }
     }
 
-    private async Task<bool> EstaVacioAsync(SearchClient cliente, string indice)
+    private async Task<EstadoIndice> ObtenerEstadoIndiceAsync(
+        SearchClient cliente,
+        string indice,
+        CancellationToken cancellationToken)
     {
-        var respuesta = await cliente.SearchSingleIndexAsync<DocumentoBusqueda>(
-            indice,
-            new SearchParams(new SearchParamsObject
-            {
-                Query = string.Empty,
-                HitsPerPage = 1
-            }));
+        try
+        {
+            var respuesta = await cliente.SearchSingleIndexAsync<DocumentoBusqueda>(
+                indice,
+                new SearchParams(new SearchParamsObject
+                {
+                    Query = string.Empty,
+                    HitsPerPage = 1
+                }),
+                cancellationToken: cancellationToken);
 
-        return respuesta.NbHits == 0;
+            return respuesta.NbHits == 0 ? EstadoIndice.Vacio : EstadoIndice.ConDatos;
+        }
+        catch (AlgoliaApiException exception) when (exception.HttpErrorCode == 404)
+        {
+            return EstadoIndice.Inexistente;
+        }
     }
 
-    private static async Task ConfigurarIndiceAsync(SearchClient cliente, string indice)
+    private async Task IndexarIndiceAsync(
+        SearchClient cliente,
+        string indice,
+        List<Dictionary<string, object?>> documentos,
+        EstadoIndice estado,
+        CancellationToken cancellationToken)
     {
-        await cliente.SetSettingsAsync(indice, new IndexSettings
+        if (documentos.Count == 0 && estado == EstadoIndice.Inexistente)
+        {
+            const string idTemporal = "_unilink_initializing_";
+            var tareaCreacion = await cliente.SaveObjectAsync(
+                indice,
+                new Dictionary<string, object?> { ["objectID"] = idTemporal },
+                cancellationToken: cancellationToken);
+            await cliente.WaitForTaskAsync(indice, tareaCreacion.TaskID, 100, null, null, cancellationToken);
+
+            var tareaConfiguracion = await ConfigurarIndiceAsync(cliente, indice, cancellationToken);
+            await cliente.WaitForTaskAsync(indice, tareaConfiguracion.TaskID, 100, null, null, cancellationToken);
+
+            var tareaLimpieza = await cliente.DeleteObjectAsync(indice, idTemporal, cancellationToken: cancellationToken);
+            await cliente.WaitForTaskAsync(indice, tareaLimpieza.TaskID, 100, null, null, cancellationToken);
+            _logger.LogInformation("Índice {Indice} creado e indexado con {Cantidad} registros.", indice, 0);
+            return;
+        }
+
+        if (documentos.Count > 0)
+        {
+            await cliente.SaveObjectsAsync(indice, documentos, cancellationToken: cancellationToken);
+        }
+
+        var tareaAjustes = await ConfigurarIndiceAsync(cliente, indice, cancellationToken);
+        await cliente.WaitForTaskAsync(indice, tareaAjustes.TaskID, 100, null, null, cancellationToken);
+
+        if (estado == EstadoIndice.Inexistente)
+        {
+            _logger.LogInformation(
+                "Índice {Indice} creado e indexado con {Cantidad} registros.",
+                indice,
+                documentos.Count);
+        }
+    }
+
+    private static Task<Algolia.Search.Models.Search.UpdatedAtResponse> ConfigurarIndiceAsync(
+        SearchClient cliente,
+        string indice,
+        CancellationToken cancellationToken)
+    {
+        return cliente.SetSettingsAsync(indice, new IndexSettings
         {
             SearchableAttributes = AtributosBuscables.ToList(),
             AttributesForFaceting = AtributosFiltrables.ToList()
-        });
+        }, cancellationToken: cancellationToken);
     }
 
     private async Task<List<Dictionary<string, object?>>> ObtenerDocumentosMaterialesAsync(
@@ -292,5 +344,12 @@ public sealed class BusquedaService
     {
         [JsonPropertyName("objectID")]
         public string ObjectID { get; set; } = string.Empty;
+    }
+
+    private enum EstadoIndice
+    {
+        Inexistente,
+        Vacio,
+        ConDatos
     }
 }
