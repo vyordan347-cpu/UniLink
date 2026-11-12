@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using UniLink.Data;
+using UniLink.Helpers;
 using UniLink.Models;
 using UniLink.Services;
 
@@ -78,7 +79,10 @@ public class MaterialesController(
 
         if (!string.IsNullOrWhiteSpace(filtro.Carrera))
         {
-            consulta = consulta.Where(material => material.Carrera == filtro.Carrera);
+            var carreraNormalizada = TextoBusqueda.NormalizarSinTildes(filtro.Carrera.Trim());
+            consulta = consulta.Where(material =>
+                UniLinkDbContext.Unaccent(material.Carrera).ToLower()
+                == carreraNormalizada);
         }
 
         if (filtro.PrecioMaximo is >= 0)

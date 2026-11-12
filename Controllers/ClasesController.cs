@@ -559,12 +559,16 @@ public class ClasesController(
             .AsQueryable();
         if (!string.IsNullOrWhiteSpace(curso))
         {
-            consulta = consulta.Where(clase => EF.Functions.ILike(clase.Curso, $"%{curso}%"));
+            var patron = $"%{TextoBusqueda.NormalizarSinTildes(curso)}%";
+            consulta = consulta.Where(clase =>
+                EF.Functions.ILike(UniLinkDbContext.Unaccent(clase.Curso), patron));
         }
 
         if (!string.IsNullOrWhiteSpace(carrera))
         {
-            consulta = consulta.Where(clase => clase.Tutor.Carrera == carrera);
+            var carreraNormalizada = TextoBusqueda.NormalizarSinTildes(carrera);
+            consulta = consulta.Where(clase =>
+                UniLinkDbContext.Unaccent(clase.Tutor.Carrera).ToLower() == carreraNormalizada);
         }
 
         if (soloGratuitas)
